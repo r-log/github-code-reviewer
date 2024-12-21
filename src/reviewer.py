@@ -461,57 +461,44 @@ class CodeReviewer:
 
     def _post_review(self, pr, comments: list):
         """Post review comments to the pull request."""
-        if comments:
-            # Format the review body
-            review_body = "Code Review Results:\n\n"
+        if not comments:
+            pr.create_review(
+                body="No issues found in the changed code.",
+                event='COMMENT'
+            )
+            return
 
-            # Filter comments to only include those on changed lines
-            filtered_comments = []
-            for file in pr.get_files():
-                # Get the changed line numbers for this file
-                changed_lines = set()
-                patch = file.patch if file.patch else ""
-                for hunk in patch.split('\n@@')[1:]:
-                    # Parse the hunk header
-                    hunk_header = hunk.split('\n')[0]
-                    try:
-                        # Extract line numbers from hunk header
-                        _, new_lines = hunk_header.split(' ')
-                        start_line = int(new_lines.split(',')[0].strip('+'))
-                        count = int(new_lines.split(',')[
-                                    1]) if ',' in new_lines else 1
-                        changed_lines.update(
-                            range(start_line, start_line + count))
-                    except (ValueError, IndexError):
-                        continue
+        # Format the review body
+        review_body = "Code Review Results:\n\n"
 
-                # Filter comments for this file
-                file_comments = [
-                    comment for comment in comments
-                    if comment['path'] == file.filename and comment['line'] in changed_lines
-                ]
-                filtered_comments.extend(file_comments)
+        # Get all changed files and their patches
+        changed_files = {file.filename: file.patch for file in pr.get_files()}
 
+        # Filter comments to only include those for changed files
+        filtered_comments = [
+            comment for comment in comments
+            if comment['path'] in changed_files
+        ]
+
+        if filtered_comments:
             # Add filtered comments to review body
-            if filtered_comments:
-                review_body += "\n".join([
-                    f"- {comment['path']} (line {comment['line']}): {comment['body']}"
-                    for comment in filtered_comments
-                ])
+            review_body += "\n".join([
+                f"- {comment['path']} (line {comment['line']}): {comment['body']}"
+                for comment in filtered_comments
+            ])
 
-                # Create the review
-                pr.create_review(
-                    body=review_body,
-                    event='COMMENT',
-                    comments=filtered_comments
-                )
-            else:
-                # If no comments on changed lines, just post a general message
-                review_body = "No issues found in the changed code."
-                pr.create_review(
-                    body=review_body,
-                    event='COMMENT'
-                )
+            # Create the review with comments
+            pr.create_review(
+                body=review_body,
+                event='COMMENT',
+                comments=filtered_comments
+            )
+        else:
+            # If no comments on changed files
+            pr.create_review(
+                body="No issues found in the changed code.",
+                event='COMMENT'
+            )
 
     def _check_constants(self, content: list, file) -> list:
         """Check if constants follow naming conventions."""
