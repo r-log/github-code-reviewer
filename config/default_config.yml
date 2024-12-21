@@ -1,0 +1,37 @@
+rules:
+  # Code Style
+  max_line_length: 100
+  max_file_lines: 300
+
+  # Documentation
+  required_docstrings: true
+  min_docstring_words: 5
+
+  # Complexity
+  complexity:
+    max_nested_blocks: 3
+    max_cognitive_complexity: 15
+
+  # Functions
+  functions:
+    max_arguments: 5
+    max_default_args: 3
+    max_function_lines: 50
+
+  # Imports
+  imports:
+    groups: ["stdlib", "third_party", "local"]
+    require_sorted: true
+    require_separate_groups: true
+    warn_on_relative_imports: true
+
+  # Naming
+  naming_conventions:
+    classes: "PascalCase"
+    functions: "snake_case"
+    variables: "snake_case"
+
+  # Testing
+  testing:
+    min_assertions: 1
+    require_docstrings: true
