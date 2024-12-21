@@ -71,6 +71,8 @@ class CodeReviewer:
         comments.extend(self._check_performance_patterns(content, file))
         comments.extend(self._check_error_messages(content, file))
         comments.extend(self._check_api_documentation(content, file))
+        comments.extend(self._check_spacing(content, file))
+        comments.extend(self._check_unused_code(content, file))
 
         return comments
 
@@ -431,59 +433,29 @@ class CodeReviewer:
     def _check_type_hints(self, content: list, file) -> list:
         """Check for proper use of type hints."""
         comments = []
-        in_function = False
-        function_name = None
-
-        type_hint_patterns = {
-            'missing_return': r'def\s+\w+\([^)]*\)\s*:',  # No return type hint
-            # Parameter without type hint
-            'missing_param': r'def\s+\w+\((?:[^:,)]+,\s*)*[^:,)]+\)',
-            # Check for proper Optional usage
-            'optional_hint': r'Optional\[[^]]+\]',
-            'list_hint': r'List\[[^]]+\]',  # Check for proper List usage
-            'dict_hint': r'Dict\[[^]]+\]',  # Check for proper Dict usage
-        }
+        if not self.config.get_rule('require_type_hints', True):
+            return comments
 
         for line_num, line in enumerate(content, 1):
-            stripped_line = line.strip()
-
-            if stripped_line.startswith('def '):
-                in_function = True
-                function_name = stripped_line[4:].split('(')[0]
-
+            stripped = line.strip()
+            if stripped.startswith('def '):
                 # Check return type hint
-                if re.match(type_hint_patterns['missing_return'], stripped_line):
+                if not '->' in stripped:
                     comments.append({
                         'path': file.filename,
                         'line': line_num,
-                        'body': f'Function "{function_name}" is missing return type hint'
+                        'body': 'Function is missing return type hint'
                     })
 
                 # Check parameter type hints
-                if re.match(type_hint_patterns['missing_param'], stripped_line):
+                params = stripped[stripped.find(
+                    '(')+1:stripped.find(')')].strip()
+                if params and not ':' in params:
                     comments.append({
                         'path': file.filename,
                         'line': line_num,
-                        'body': f'Function "{function_name}" has parameters without type hints'
+                        'body': 'Function parameters are missing type hints'
                     })
-
-                # Check proper usage of type hints
-                if 'Union[None' in stripped_line or 'Union[NoneType' in stripped_line:
-                    comments.append({
-                        'path': file.filename,
-                        'line': line_num,
-                        'body': f'Use "Optional" instead of "Union[None" in function "{function_name}"'
-                    })
-
-                if 'typing.' in stripped_line:
-                    comments.append({
-                        'path': file.filename,
-                        'line': line_num,
-                        'body': f'Import type hints directly instead of using "typing." prefix in function "{function_name}"'
-                    })
-
-            elif in_function and not stripped_line.startswith((' ', '#', "'''", '"""')):
-                in_function = False
 
         return comments
 
@@ -1827,6 +1799,61 @@ class CodeReviewer:
         elif base_module in third_party_modules:
             return 'third_party'
         return 'local'
+
+    def _check_spacing(self, content: list, file) -> list:
+        """Check spacing around operators and assignments."""
+        comments = []
+        if not self.config.get_rule('spacing.around_operators', True):
+            return comments
+
+        operators = ['+', '-', '*', '/', '=', '==', '!=', '>=', '<=']
+        for line_num, line in enumerate(content, 1):
+            for op in operators:
+                if op in line and not f' {op} ' in line:
+                    comments.append({
+                        'path': file.filename,
+                        'line': line_num,
+                        'body': f'Missing spaces around operator "{op}"'
+                    })
+        return comments
+
+    def _check_unused_code(self, content: list, file) -> list:
+        """Check for unused functions."""
+        comments = []
+        if not self.config.get_rule('functions.warn_unused', True):
+            return comments
+
+        function_defs = {}
+        function_calls = set()
+        in_test_file = 'test' in file.filename.lower()
+
+        # First pass: collect definitions and calls
+        for line_num, line in enumerate(content, 1):
+            stripped = line.strip()
+
+            # Skip test functions
+            if in_test_file and stripped.startswith('def test_'):
+                continue
+
+            if stripped.startswith('def '):
+                func_name = stripped[4:].split('(')[0]
+                function_defs[func_name] = line_num
+            else:
+                # Look for function calls
+                for func in function_defs:
+                    if f'{func}(' in line or f'{func} =' in line:
+                        function_calls.add(func)
+
+        # Check for unused functions
+        for func, line_num in function_defs.items():
+            if func not in function_calls and not func.startswith('_'):
+                comments.append({
+                    'path': file.filename,
+                    'line': line_num,
+                    'body': f'Unused function: "{func}"'
+                })
+
+        return comments
 
 
 def main():
