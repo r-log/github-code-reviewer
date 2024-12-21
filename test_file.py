@@ -6,4 +6,5 @@ def badFunction():
 
 
 def unused_function():  # This will be flagged as unused
+    """This is an unused function."""
     pass
