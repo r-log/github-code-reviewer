@@ -7,34 +7,38 @@ demonstrates different aspects of code quality checks.
 
 from typing import List, Dict, Optional, Union, Any
 
-# Define module-level constants for use in test examples.
-# These constants represent common values used throughout the tests.
+# Define module-level constants for use in test examples
 MULTIPLIER_VALUE = 2
 DEFAULT_VALUE = 123
 SMALL_VALUE = 10
 MEDIUM_VALUE = 20
 LARGE_VALUE = 100
 THRESHOLD_VALUE = 50
+TEST_VALUE = 42
+LIST_SIZE = 3
+EXAMPLE_DATA = ["test", "example"]
+EXAMPLE_CONFIG = {"option": "value"}
 
 
-def run_all_examples() -> None:
-    """Run all example functions to demonstrate code review checks."""
-    data = ["test", "example"]
-    config = {"option": "value"}
-    value = 42
+def run_examples() -> None:
+    """Run example code to demonstrate reviewer functionality.
 
-    # Run function examples
+    This function executes all the example code to ensure
+    it's being used and to demonstrate various code review
+    checks in action.
+    """
+    # Run function examples with test data
     demonstrate_issues()
-    demonstrate_good_practices(data, config)
+    demonstrate_good_practices(EXAMPLE_DATA, EXAMPLE_CONFIG)
 
-    # Run class examples
-    bad = DemonstrateBadPractices()
-    bad.demonstrate_method_issues()
+    # Create test instances
+    bad_example = DemonstrateBadPractices()
+    bad_example.demonstrate_method_issues()
 
-    good = DemonstrateGoodPractices(value)
-    good.process_data([1, 2, 3])
+    good_example = DemonstrateGoodPractices(TEST_VALUE)
+    good_example.process_data([1] * LIST_SIZE)
 
-    # Run complexity example
+    # Test error handling
     demonstrate_complexity()
 
 
@@ -68,10 +72,10 @@ def demonstrate_good_practices(
     Returns:
         List[str]: Processed data with applied transformations
     """
-    result: List[str] = []
+    output: List[str] = []
     for item in data:
-        result.append(item * MULTIPLIER_VALUE)
-    return result
+        output.append(item * MULTIPLIER_VALUE)
+    return output
 
 
 class DemonstrateBadPractices:
@@ -147,17 +151,19 @@ def demonstrate_complexity() -> None:
     - Loop complexity
     - Code organization
     """
-    result = SMALL_VALUE + MEDIUM_VALUE
+    output = SMALL_VALUE + MEDIUM_VALUE
 
     try:
-        result = LARGE_VALUE / 0
+        output = LARGE_VALUE / 0
     except ZeroDivisionError as error:
         print(f"Handled error: {error}")
 
+    # Process values up to threshold
     for index in range(LARGE_VALUE):
-        if index > THRESHOLD_VALUE:
-            print(f"Index {index} exceeded {THRESHOLD_VALUE}")
+        if index <= THRESHOLD_VALUE:
+            continue
+        print(f"Index {index} exceeded {THRESHOLD_VALUE}")
 
 
 if __name__ == "__main__":
-    run_all_examples()
+    run_examples()
