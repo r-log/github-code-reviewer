@@ -1,12 +1,19 @@
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Union
 
 
-def bad_function(x=1):
-    """Short doc."""
+def bad_function(x: int = 1) -> None:
+    """Example of a function with issues.
+
+    This docstring is now properly detailed but the function
+    has other issues to test the reviewer.
+
+    Args:
+        x: Input value with no type hint
+    """
     return None
 
 
-def good_function(data: List[str], config: Optional[Dict] = None) -> List[str]:
+def good_function(data: List[str], config: Optional[Dict[str, Any]] = None) -> List[str]:
     """Example of a well-documented function.
 
     This function demonstrates proper code style, documentation,
@@ -19,21 +26,30 @@ def good_function(data: List[str], config: Optional[Dict] = None) -> List[str]:
     Returns:
         List[str]: Processed data
     """
-    MULTIPLIER = 2
-    result = []
+    MULTIPLIER: int = 2
+    result: List[str] = []
 
     for item in data:
-        PROCESSED = item * MULTIPLIER
+        PROCESSED: str = item * MULTIPLIER
         result.append(PROCESSED)
 
     return result
 
 
 class BadClass:
-    def __init__(self):
-        self.bad_var = 123
+    """Example of a class with issues.
 
-    def bad_method():
+    This class demonstrates various issues that
+    the reviewer should catch.
+    """
+
+    def __init__(self) -> None:
+        """Initialize the class."""
+        INITIAL_VALUE = 123  # Now a proper constant
+        self.bad_var = INITIAL_VALUE
+
+    def bad_method(self) -> None:  # Fixed missing self
+        """Example of a method with issues."""
         pass
 
 
@@ -64,21 +80,29 @@ class GoodExample:
         return [x + self.value for x in data]
 
 
-def test_complexity():
-    """Test function demonstrating complexity issues."""
-    # Bad spacing
-    z = x+y
+def test_complexity() -> None:
+    """Test function demonstrating complexity issues.
 
-    # Exception handling
+    This function contains various code style and
+    complexity issues for testing purposes.
+    """
+    # Demonstrate spacing issues with operators
+    x: int = 10
+    y: int = 20
+    z: int = x + y  # Fixed spacing
+
+    # Demonstrate exception handling issues
     try:
-        result = 1/0
-    except:  # Bare except
+        result: float = 1.0 / 0.0  # Fixed spacing
+    except ZeroDivisionError:  # Fixed bare except
         pass
 
-    # Magic numbers
-    MAX_VALUE = 100
-    for i in range(MAX_VALUE):
-        if i > 50:
+    # Demonstrate magic number issues
+    MAX_ITERATIONS: int = 100
+    THRESHOLD: int = 50
+
+    for i in range(MAX_ITERATIONS):
+        if i > THRESHOLD:
             print(i)
 
     return None
