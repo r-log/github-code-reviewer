@@ -1,10 +1,10 @@
-def badFunction():
-    x = 1
-    y = 2
-    z = x+y  # No spaces around operators
-    return z  # Missing type hints
+def bad_function() -> None:
+    X_VALUE = 1
+    Y_VALUE = 2
+    z = X_VALUE + Y_VALUE
+    return z
 
 
-def unused_function():  # This will be flagged as unused
+def unused_function():
     """This is an unused function."""
     pass
