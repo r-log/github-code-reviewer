@@ -35,4 +35,4 @@ jobs:
           GITHUB_REPOSITORY: ${{ github.repository }}
           GITHUB_EVENT_PATH: ${{ github.event_path }}
         run: |
-          python -m src.reviewer
+          python -c "from src.reviewer import main; main()"
