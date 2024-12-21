@@ -471,34 +471,16 @@ class CodeReviewer:
         # Format the review body
         review_body = "Code Review Results:\n\n"
 
-        # Get all changed files and their patches
-        changed_files = {file.filename: file.patch for file in pr.get_files()}
+        # Create a review without inline comments
+        filtered_comments = []
+        for comment in comments:
+            review_body += f"- {comment['path']} (line {comment['line']}): {comment['body']}\n"
 
-        # Filter comments to only include those for changed files
-        filtered_comments = [
-            comment for comment in comments
-            if comment['path'] in changed_files
-        ]
-
-        if filtered_comments:
-            # Add filtered comments to review body
-            review_body += "\n".join([
-                f"- {comment['path']} (line {comment['line']}): {comment['body']}"
-                for comment in filtered_comments
-            ])
-
-            # Create the review with comments
-            pr.create_review(
-                body=review_body,
-                event='COMMENT',
-                comments=filtered_comments
-            )
-        else:
-            # If no comments on changed files
-            pr.create_review(
-                body="No issues found in the changed code.",
-                event='COMMENT'
-            )
+        # Create the review with just the body
+        pr.create_review(
+            body=review_body,
+            event='COMMENT'
+        )
 
     def _check_constants(self, content: list, file) -> list:
         """Check if constants follow naming conventions."""
