@@ -43,8 +43,12 @@ class CodeReviewer:
         """Review a single file and return list of comments."""
         comments = []
 
-        # Get file content
-        content = file.patch.split('\n') if file.patch else []
+        try:
+            # Try to get full file content
+            content = file.raw_content.decode('utf-8').split('\n')
+        except (AttributeError, UnicodeDecodeError):
+            # Fall back to patch if full content not available
+            content = file.patch.split('\n') if file.patch else []
 
         # Apply rules
         comments.extend(self._check_line_length(content, file))
