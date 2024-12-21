@@ -1,7 +1,7 @@
 from typing import List, Dict, Optional
 
 
-def bad_function(x: int = 1) -> None:
+def bad_function(x=1):
     """Short doc."""
     return None
 
@@ -19,21 +19,21 @@ def good_function(data: List[str], config: Optional[Dict] = None) -> List[str]:
     Returns:
         List[str]: Processed data
     """
-    MULTIPLIER = 2  # Proper constant naming
-    result = []  # Initialize list properly
+    MULTIPLIER = 2
+    result = []
 
     for item in data:
-        processed = item * MULTIPLIER
-        result.append(processed)
+        PROCESSED = item * MULTIPLIER
+        result.append(PROCESSED)
 
     return result
 
 
-class BadClassName:  # Should be PascalCase
+class BadClass:
     def __init__(self):
-        self.badVariable = 123  # Should be snake_case
+        self.bad_var = 123
 
-    def badMethod():  # Missing self parameter
+    def bad_method():
         pass
 
 
@@ -64,29 +64,21 @@ class GoodExample:
         return [x + self.value for x in data]
 
 
-# Test various issues
-def test_issues():
-    # Magic numbers
-    x = 42
-    y = 123
-
+def test_complexity():
+    """Test function demonstrating complexity issues."""
     # Bad spacing
     z = x+y
 
-    # Nested loops with complexity
-    for i in range(10):
-        for j in range(10):
-            if i > 5:
-                if j > 5:
-                    print(i + j)
-
     # Exception handling
     try:
-        x = 1/0
+        result = 1/0
     except:  # Bare except
         pass
 
-    # Unused imports and variables
-    unused_var = 100
+    # Magic numbers
+    MAX_VALUE = 100
+    for i in range(MAX_VALUE):
+        if i > 50:
+            print(i)
 
     return None
