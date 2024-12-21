@@ -1823,10 +1823,16 @@ class CodeReviewer:
         if not self.config.get_rule('spacing.around_operators', True):
             return comments
 
-        operators = ['+', '-', '*', '/', '=', '==', '!=', '>=', '<=']
+        # Only check operators that are not part of other syntax
         for line_num, line in enumerate(content, 1):
-            for op in operators:
-                if op in line and not f' {op} ' in line:
+            stripped = line.strip()
+            # Skip comments and empty lines
+            if not stripped or stripped.startswith('#'):
+                continue
+
+            # Check operators
+            for op in ['+', '*', '/', '=', '==', '!=', '>=', '<=']:
+                if op in stripped and not f' {op} ' in stripped:
                     comments.append({
                         'path': file.filename,
                         'line': line_num,
