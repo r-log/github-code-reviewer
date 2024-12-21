@@ -1,12 +1,14 @@
 """Test file for the code reviewer.
 
 This file contains various examples of good and bad code
-to test the functionality of the code reviewer.
+to test the functionality of the code reviewer. Each section
+demonstrates different aspects of code quality checks.
 """
 
 from typing import List, Dict, Optional, Union, Any
 
-# Global constants
+# Define module-level constants for use in test examples.
+# These constants represent common values used throughout the tests.
 MULTIPLIER_VALUE = 2
 DEFAULT_VALUE = 123
 SMALL_VALUE = 10
@@ -15,15 +17,12 @@ LARGE_VALUE = 100
 THRESHOLD_VALUE = 50
 
 
-def bad_function(x: int = 1) -> None:
-    """Example of a function with issues.
+def demonstrate_issues(x: int = 1) -> None:
+    """Demonstrate various code issues.
 
-    This function demonstrates various issues that the code
-    reviewer should catch, including:
-    - Brief docstrings
-    - Missing type hints
-    - Unused parameters
-    - Magic numbers
+    This function shows common code issues that should be
+    detected by the reviewer, such as unused parameters
+    and poor documentation.
 
     Args:
         x: Input value that's never used
@@ -31,120 +30,117 @@ def bad_function(x: int = 1) -> None:
     return None
 
 
-def good_function(data: List[str], config: Optional[Dict[str, Any]] = None) -> List[str]:
-    """Example of a well-documented function.
+def demonstrate_good_practices(
+    data: List[str],
+    config: Optional[Dict[str, Any]] = None
+) -> List[str]:
+    """Demonstrate good coding practices.
 
-    This function demonstrates proper code style, documentation,
-    and type hints usage. It processes a list of strings according
-    to the provided configuration.
+    This function shows proper code style, documentation,
+    and type hints usage. It processes strings according
+    to configuration.
 
     Args:
         data: List of strings to process
-        config: Optional configuration dictionary that can modify behavior
+        config: Optional configuration dictionary
 
     Returns:
         List[str]: Processed data with applied transformations
     """
     result: List[str] = []
-
     for item in data:
-        transformed = item * MULTIPLIER_VALUE
-        result.append(transformed)
-
+        processed_item = item * MULTIPLIER_VALUE
+        result.append(processed_item)
     return result
 
 
-class BadClass:
-    """Example of a class with issues.
+class DemonstrateBadPractices:
+    """Demonstrate common class-related issues.
 
-    This class demonstrates various issues that the code
-    reviewer should catch, including:
+    This class shows various issues that should be caught:
     - Missing type hints
-    - Poor method documentation
-    - Magic numbers
+    - Poor documentation
     - Improper initialization
     """
 
     def __init__(self, value: int = DEFAULT_VALUE) -> None:
-        """Initialize the class with default values.
-
-        Sets up the initial state of the class with a
-        predefined value for demonstration.
+        """Initialize with demonstration values.
 
         Args:
-            value: Initial value to use
+            value: Initial value to store
         """
         self.value = value
 
-    def bad_method(self, param: Any = None) -> None:
-        """Example of a method with issues.
+    def demonstrate_method_issues(self, param: Any = None) -> None:
+        """Demonstrate method-related issues.
 
-        This method demonstrates various issues including:
+        Shows various method-specific issues:
         - Lack of implementation
-        - Missing parameters
-        - Poor documentation
+        - Unused parameters
+        - Minimal documentation
 
         Args:
-            param: Unused parameter
+            param: Unused parameter for demonstration
         """
         pass
 
 
-class GoodExample:
-    """Example of a well-documented class.
+class DemonstrateGoodPractices:
+    """Demonstrate proper class implementation.
 
-    This class demonstrates proper class structure,
-    documentation, and method implementation. It serves
-    as an example of good coding practices.
+    This class shows proper:
+    - Documentation
+    - Type hints
+    - Method implementation
+    - Error handling
     """
 
     def __init__(self, value: int) -> None:
         """Initialize with a value.
 
         Args:
-            value: Initial value to store for processing
+            value: Initial value to store
         """
         self.value = value
 
-    def process(self, data: List[int]) -> List[int]:
+    def process_data(self, data: List[int]) -> List[int]:
         """Process a list of integers.
 
-        Applies the stored value to each element in the input list
-        using a list comprehension for efficiency.
+        Demonstrates proper list processing with type hints
+        and efficient implementation.
 
         Args:
             data: List of integers to process
 
         Returns:
-            List[int]: Each input value incremented by the stored value
+            List[int]: Processed integers
         """
         return [x + self.value for x in data]
 
 
-def test_complexity() -> None:
-    """Test function demonstrating complexity issues.
+def demonstrate_complexity() -> None:
+    """Demonstrate complexity and error handling.
 
-    This function contains various code style and complexity
-    issues for testing the code reviewer's ability to detect:
-    - Magic numbers
-    - Operator spacing
-    - Exception handling
-    - Code complexity
+    Shows proper handling of:
+    - Constants usage
+    - Error handling
+    - Loop complexity
+    - Code organization
     """
-    # Demonstrate proper operator spacing in calculations
-    total = SMALL_VALUE + MEDIUM_VALUE
+    # Calculate sum using named constants
+    sum_value = SMALL_VALUE + MEDIUM_VALUE
 
-    # Demonstrate proper exception handling with specific exceptions
+    # Demonstrate proper error handling
     try:
-        # Intentionally cause a division by zero error
-        total = LARGE_VALUE / 0
-    except ZeroDivisionError as e:
-        # Properly handle the specific exception
-        print(f"Caught expected error: {e}")
+        # Intentionally trigger an error
+        sum_value = LARGE_VALUE / 0
+    except ZeroDivisionError as error:
+        # Log the error properly
+        print(f"Handled error: {error}")
 
-    # Demonstrate proper loop structure with constants
-    for i in range(LARGE_VALUE):
-        if i > THRESHOLD_VALUE:
-            print(f"Value {i} exceeded threshold")
+    # Show proper loop structure
+    for index in range(LARGE_VALUE):
+        if index > THRESHOLD_VALUE:
+            print(f"Index {index} exceeded {THRESHOLD_VALUE}")
 
     return None
