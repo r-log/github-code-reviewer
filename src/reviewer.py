@@ -1846,18 +1846,17 @@ class CodeReviewer:
         if not self.config.get_rule('functions.warn_unused', True):
             return comments
 
+        # Skip test files
+        if 'test' in file.filename:
+            return comments
+
         seen_warnings = set()  # Track warnings to avoid duplicates
         function_defs = {}
         function_calls = set()
-        in_test_file = 'test' in file.filename.lower()
 
         # First pass: collect definitions and calls
         for line_num, line in enumerate(content, 1):
             stripped = line.strip()
-
-            # Skip test functions
-            if in_test_file and stripped.startswith('def test_'):
-                continue
 
             if stripped.startswith('def '):
                 func_name = stripped[4:].split('(')[0]
