@@ -4,14 +4,14 @@ on:
   pull_request:
     types: [opened, synchronize]
     paths:
-      - "**.py" # Only trigger on Python file changes
+      - "**.py"
 
 jobs:
   review:
     runs-on: ubuntu-latest
     permissions:
-      pull-requests: write # Needed to post review comments
-      contents: read # Needed to checkout code
+      pull-requests: write
+      contents: read
 
     steps:
       - name: Checkout code
@@ -27,6 +27,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -e .
+          pip install PyGithub PyYAML  # Explicitly install required packages
 
       - name: Run Code Review
         env:
