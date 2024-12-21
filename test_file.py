@@ -17,6 +17,27 @@ LARGE_VALUE = 100
 THRESHOLD_VALUE = 50
 
 
+def run_all_examples() -> None:
+    """Run all example functions to demonstrate code review checks."""
+    data = ["test", "example"]
+    config = {"option": "value"}
+    value = 42
+
+    # Run function examples
+    demonstrate_issues()
+    demonstrate_good_practices(data, config)
+
+    # Run class examples
+    bad = DemonstrateBadPractices()
+    bad.demonstrate_method_issues()
+
+    good = DemonstrateGoodPractices(value)
+    good.process_data([1, 2, 3])
+
+    # Run complexity example
+    demonstrate_complexity()
+
+
 def demonstrate_issues(x: int = 1) -> None:
     """Demonstrate various code issues.
 
@@ -49,8 +70,7 @@ def demonstrate_good_practices(
     """
     result: List[str] = []
     for item in data:
-        processed_item = item * MULTIPLIER_VALUE
-        result.append(processed_item)
+        result.append(item * MULTIPLIER_VALUE)
     return result
 
 
@@ -127,20 +147,17 @@ def demonstrate_complexity() -> None:
     - Loop complexity
     - Code organization
     """
-    # Calculate sum using named constants
-    sum_value = SMALL_VALUE + MEDIUM_VALUE
+    result = SMALL_VALUE + MEDIUM_VALUE
 
-    # Demonstrate proper error handling
     try:
-        # Intentionally trigger an error
-        sum_value = LARGE_VALUE / 0
+        result = LARGE_VALUE / 0
     except ZeroDivisionError as error:
-        # Log the error properly
         print(f"Handled error: {error}")
 
-    # Show proper loop structure
     for index in range(LARGE_VALUE):
         if index > THRESHOLD_VALUE:
             print(f"Index {index} exceeded {THRESHOLD_VALUE}")
 
-    return None
+
+if __name__ == "__main__":
+    run_all_examples()
