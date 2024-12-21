@@ -1,0 +1,10 @@
+# Default owners for everything in the repo
+* @r-log
+
+# Specific owners for core components
+/src/reviewer.py @r-log
+/src/config.py @r-log
+/config/* @r-log
+
+# Test files
+/tests/* @r-log 
