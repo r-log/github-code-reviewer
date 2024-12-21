@@ -22,33 +22,24 @@ wheels/
 
 # Virtual Environment
 venv/
-env/
 ENV/
-.env
+env/
 
 # IDE
 .idea/
 .vscode/
 *.swp
 *.swo
-.DS_Store
 
 # Testing
 .coverage
-coverage.xml
 htmlcov/
-.pytest_cache/
 .tox/
+.pytest_cache/
 
-# Logs
-*.log
+# Distribution
+dist/
+build/
 
-# Local development
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-
-# Cache directories
-.mypy_cache/
-.ruff_cache/
+# Misc
+.DS_Store
