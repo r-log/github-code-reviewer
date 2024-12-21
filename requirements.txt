@@ -1,0 +1,11 @@
+PyGithub>=2.1.1
+PyYAML>=6.0.1
+
+# Testing dependencies
+pytest>=8.3.4
+pytest-cov>=6.0.0
+
+# Development dependencies
+pylint>=3.3.2
+isort>=5.13.2
+coverage>=7.6.9
