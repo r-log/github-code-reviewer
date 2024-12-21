@@ -30,25 +30,34 @@ class CodeReviewer:
         repo = self.github.get_repo(repo_name)
         pr = repo.get_pull(pr_number)
 
+        print(f"Reviewing PR #{pr_number} in {repo_name}")  # Debug output
         review_comments = []
 
         for file in pr.get_files():
-            if file.filename.endswith('.py'):  # Start with Python files
+            print(f"Found file: {file.filename}")  # Debug output
+            if file.filename.endswith('.py'):
                 review_comments.extend(self._review_file(file))
 
         if review_comments:
+            print(f"Found {len(review_comments)} issues")  # Debug output
             self._post_review(pr, review_comments)
 
     def _review_file(self, file) -> list:
         """Review a single file and return list of comments."""
         comments = []
 
+        # Get file content
         try:
-            # Try to get full file content
-            content = file.raw_content.decode('utf-8').split('\n')
-        except (AttributeError, UnicodeDecodeError):
-            # Fall back to patch if full content not available
+            # Try to get content from the repository
+            repo = self.github.get_repo(os.getenv('GITHUB_REPOSITORY'))
+            content = repo.get_contents(
+                file.filename).decoded_content.decode('utf-8').split('\n')
+        except:
+            # Fallback to patch if can't get full content
             content = file.patch.split('\n') if file.patch else []
+
+        print(f"Reviewing file: {file.filename}")  # Debug output
+        print(f"Content: {content[:5]}")  # Show first 5 lines
 
         # Apply rules
         comments.extend(self._check_line_length(content, file))
