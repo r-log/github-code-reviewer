@@ -1,14 +1,24 @@
-from typing import List, Dict, Optional, Union
+"""Test file for the code reviewer.
+
+This file contains various examples of good and bad code
+to test the functionality of the code reviewer.
+"""
+
+from typing import List, Dict, Optional, Union, Any
 
 
 def bad_function(x: int = 1) -> None:
     """Example of a function with issues.
 
-    This docstring is now properly detailed but the function
-    has other issues to test the reviewer.
+    This function demonstrates various issues that the code
+    reviewer should catch, including:
+    - Brief docstrings
+    - Missing type hints
+    - Unused parameters
+    - Magic numbers
 
     Args:
-        x: Input value with no type hint
+        x: Input value that's never used
     """
     return None
 
@@ -17,21 +27,27 @@ def good_function(data: List[str], config: Optional[Dict[str, Any]] = None) -> L
     """Example of a well-documented function.
 
     This function demonstrates proper code style, documentation,
-    and type hints usage.
+    and type hints usage. It processes a list of strings according
+    to the provided configuration.
 
     Args:
         data: List of strings to process
-        config: Optional configuration dictionary
+        config: Optional configuration dictionary that can modify behavior
 
     Returns:
-        List[str]: Processed data
+        List[str]: Processed data with applied transformations
     """
-    MULTIPLIER: int = 2
+    # Define constants at the top of the function
+    DEFAULT_MULTIPLIER: int = 2
+
+    # Initialize result list with proper typing
     result: List[str] = []
 
+    # Process each item with proper naming and documentation
     for item in data:
-        PROCESSED: str = item * MULTIPLIER
-        result.append(PROCESSED)
+        # Apply the multiplication transformation
+        transformed: str = item * DEFAULT_MULTIPLIER
+        result.append(transformed)
 
     return result
 
@@ -39,17 +55,32 @@ def good_function(data: List[str], config: Optional[Dict[str, Any]] = None) -> L
 class BadClass:
     """Example of a class with issues.
 
-    This class demonstrates various issues that
-    the reviewer should catch.
+    This class demonstrates various issues that the code
+    reviewer should catch, including:
+    - Missing type hints
+    - Poor method documentation
+    - Magic numbers
+    - Improper initialization
     """
 
     def __init__(self) -> None:
-        """Initialize the class."""
-        INITIAL_VALUE = 123  # Now a proper constant
-        self.bad_var = INITIAL_VALUE
+        """Initialize the class with default values.
 
-    def bad_method(self) -> None:  # Fixed missing self
-        """Example of a method with issues."""
+        Sets up the initial state of the class with a
+        predefined value for demonstration.
+        """
+        # Define class-level constants
+        DEFAULT_VALUE: int = 123
+        self.bad_var = DEFAULT_VALUE
+
+    def bad_method(self) -> None:
+        """Example of a method with issues.
+
+        This method demonstrates various issues including:
+        - Lack of implementation
+        - Missing parameters
+        - Poor documentation
+        """
         pass
 
 
@@ -57,25 +88,29 @@ class GoodExample:
     """Example of a well-documented class.
 
     This class demonstrates proper class structure,
-    documentation, and method implementation.
+    documentation, and method implementation. It serves
+    as an example of good coding practices.
     """
 
     def __init__(self, value: int) -> None:
         """Initialize with a value.
 
         Args:
-            value: Initial value to store
+            value: Initial value to store for processing
         """
         self.value = value
 
     def process(self, data: List[int]) -> List[int]:
         """Process a list of integers.
 
+        Applies the stored value to each element in the input list
+        using a list comprehension for efficiency.
+
         Args:
             data: List of integers to process
 
         Returns:
-            List[int]: Processed data
+            List[int]: Each input value incremented by the stored value
         """
         return [x + self.value for x in data]
 
@@ -83,26 +118,33 @@ class GoodExample:
 def test_complexity() -> None:
     """Test function demonstrating complexity issues.
 
-    This function contains various code style and
-    complexity issues for testing purposes.
+    This function contains various code style and complexity
+    issues for testing the code reviewer's ability to detect:
+    - Magic numbers
+    - Operator spacing
+    - Exception handling
+    - Code complexity
     """
-    # Demonstrate spacing issues with operators
-    x: int = 10
-    y: int = 20
-    z: int = x + y  # Fixed spacing
-
-    # Demonstrate exception handling issues
-    try:
-        result: float = 1.0 / 0.0  # Fixed spacing
-    except ZeroDivisionError:  # Fixed bare except
-        pass
-
-    # Demonstrate magic number issues
-    MAX_ITERATIONS: int = 100
+    # Define constants for all numeric values
+    SMALL_VALUE: int = 10
+    MEDIUM_VALUE: int = 20
+    LARGE_VALUE: int = 100
     THRESHOLD: int = 50
 
-    for i in range(MAX_ITERATIONS):
+    # Demonstrate proper operator spacing in calculations
+    result: int = SMALL_VALUE + MEDIUM_VALUE
+
+    # Demonstrate proper exception handling with specific exceptions
+    try:
+        # Intentionally cause a division by zero error
+        result = LARGE_VALUE / 0
+    except ZeroDivisionError as e:
+        # Properly handle the specific exception
+        print(f"Caught expected error: {e}")
+
+    # Demonstrate proper loop structure with constants
+    for i in range(LARGE_VALUE):
         if i > THRESHOLD:
-            print(i)
+            print(f"Value {i} exceeded threshold")
 
     return None
