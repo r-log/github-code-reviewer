@@ -481,22 +481,21 @@ class CodeReviewer:
         if not comments:
             pr.create_review(
                 body="No issues found in the changed code.",
-                event='COMMENT'
+                event='COMMENT',
+                comments=[]  # Always include comments field
             )
             return
 
         # Format the review body
         review_body = "Code Review Results:\n\n"
-
-        # Create a review without inline comments
-        filtered_comments = []
         for comment in comments:
             review_body += f"- {comment['path']} (line {comment['line']}): {comment['body']}\n"
 
-        # Create the review with just the body
+        # Create the review with comments
         pr.create_review(
             body=review_body,
-            event='COMMENT'
+            event='COMMENT',
+            comments=comments  # Include original comments
         )
 
     def _check_constants(self, content: list, file) -> list:
@@ -1226,47 +1225,20 @@ class CodeReviewer:
 
         security_patterns = {
             'hardcoded_password': (
-                r'(?:password|passwd|pwd)\s*=\s*["\'][^"\']+["\']',
-                'Hardcoded password found. Use environment variables or secure storage.'
+                r'(?:password|secret|key)\s*=\s*["\'][^"\']+["\']',
+                'Hardcoded password or secret detected'
             ),
             'sql_injection': (
-                r'execute\([^)]*\%.*?\)',
-                'Possible SQL injection vulnerability. Use parameterized queries.'
+                r'f["\'].*SELECT.*\{.*\}.*["\']',
+                'Potential SQL injection vulnerability'
             ),
-            'shell_injection': (
-                r'(?:os\.system|subprocess\.call|subprocess\.Popen)\([^)]*\+',
-                'Possible shell injection vulnerability. Use subprocess with shell=False.'
-            ),
-            'weak_crypto': (
-                r'(?:md5|sha1)\(',
-                'Weak cryptographic hash found. Use stronger algorithms like SHA-256 or better.'
-            ),
-            'insecure_random': (
-                r'random\.',
-                'Using standard random module. Use secrets for cryptographic operations.'
-            ),
-            'debug_enabled': (
-                r'(?:DEBUG|DEVELOPMENT)\s*=\s*True',
-                'Debug mode enabled. Ensure this is disabled in production.'
-            ),
-            'sensitive_info_logging': (
-                r'(?:logging|print|logger).*?(?:password|token|key|secret)',
-                'Possible sensitive information in logs. Avoid logging credentials.'
-            ),
-        }
-
-        # Additional security checks
-        cors_patterns = {
-            'cors_all': r"(?:CORS_ORIGIN_ALLOW_ALL|Access-Control-Allow-Origin:\s*\*)",
-            'cors_unsafe': r"Access-Control-Allow-Origin:\s*'?http",
+            'eval_usage': (
+                r'eval\s*\(',
+                'Dangerous eval() function usage detected'
+            )
         }
 
         for line_num, line in enumerate(content, 1):
-            # Skip comments
-            if line.strip().startswith('#'):
-                continue
-
-            # Check each security pattern
             for pattern_name, (pattern, message) in security_patterns.items():
                 if re.search(pattern, line, re.IGNORECASE):
                     comments.append({
@@ -1274,31 +1246,6 @@ class CodeReviewer:
                         'line': line_num,
                         'body': f'Security issue: {message}'
                     })
-
-            # Check CORS configurations
-            for pattern in cors_patterns.values():
-                if re.search(pattern, line):
-                    comments.append({
-                        'path': file.filename,
-                        'line': line_num,
-                        'body': 'Security issue: Overly permissive CORS configuration.'
-                    })
-
-            # Check for dangerous eval/exec usage
-            if 'eval(' in line or 'exec(' in line:
-                comments.append({
-                    'path': file.filename,
-                    'line': line_num,
-                    'body': 'Security issue: Using eval() or exec() is dangerous. Consider safer alternatives.'
-                })
-
-            # Check for unsafe deserialization
-            if 'pickle.loads' in line or 'yaml.load(' in line:
-                comments.append({
-                    'path': file.filename,
-                    'line': line_num,
-                    'body': 'Security issue: Unsafe deserialization. Use pickle.loads with trusted data only or yaml.safe_load().'
-                })
 
         return comments
 
@@ -1916,26 +1863,83 @@ class CodeReviewer:
         """Check performance-related metrics."""
         comments = []
         max_loop_depth = self.config.get_rule('performance.max_loop_depth', 2)
-        max_calls = self.config.get_rule('performance.max_function_calls', 3)
 
-        # Check loop depth
-        # Add implementation
+        print(f"\nDebug _check_performance_metrics:")
+        print(f"Max allowed loop depth: {max_loop_depth}")
 
-        # Check function calls
-        # Add implementation
+        # Track loop nesting by indentation
+        loop_depths = {}  # line_num -> depth
+        current_depth = 0
+        base_indent = None
 
+        for line_num, line in enumerate(content, 1):
+            stripped = line.strip()
+            indent = len(line) - len(line.lstrip())
+
+            print(f"\nProcessing line {line_num}: {line}")
+            print(f"Indent: {indent}, Current depth: {current_depth}")
+
+            # Skip empty lines and comments
+            if not stripped or stripped.startswith('#'):
+                print("Skipping empty/comment line")
+                continue
+
+            # Set base indentation for the first line
+            if base_indent is None and stripped:
+                base_indent = indent
+                print(f"Set base indent to: {base_indent}")
+
+            # Check for loop start
+            if stripped.startswith(('for ', 'while ')):
+                # Calculate relative indentation level
+                relative_indent = (
+                    indent - base_indent) // 4 if base_indent is not None else 0
+                current_depth = relative_indent + 1
+                loop_depths[line_num] = current_depth
+
+                print(
+                    f"Found loop. Relative indent: {relative_indent}, New depth: {current_depth}")
+
+                if current_depth > max_loop_depth:
+                    print(
+                        f"Adding warning for excessive depth: {current_depth}")
+                    comments.append({
+                        'path': file.filename,
+                        'line': line_num,
+                        'body': f'Loop depth of {current_depth} exceeds maximum allowed ({max_loop_depth})'
+                    })
+
+        print("\nFinal loop depths:", loop_depths)
+        print("Generated comments:", comments)
         return comments
 
     def _check_security_issues(self, content: list, file) -> list:
         """Check for security issues."""
         comments = []
-        security_rules = self.config.get_rule('security', {})
 
-        # Check SQL injection
-        # Add implementation
+        security_patterns = {
+            'hardcoded_password': (
+                r'(?:password|secret|key)\s*=\s*["\'][^"\']+["\']',
+                'Hardcoded password or secret detected'
+            ),
+            'sql_injection': (
+                r'f["\'].*SELECT.*\{.*\}.*["\']',
+                'Potential SQL injection vulnerability'
+            ),
+            'eval_usage': (
+                r'eval\s*\(',
+                'Dangerous eval() function usage detected'
+            )
+        }
 
-        # Check file access
-        # Add implementation
+        for line_num, line in enumerate(content, 1):
+            for pattern_name, (pattern, message) in security_patterns.items():
+                if re.search(pattern, line, re.IGNORECASE):
+                    comments.append({
+                        'path': file.filename,
+                        'line': line_num,
+                        'body': f'Security issue: {message}'
+                    })
 
         return comments
 

@@ -60,8 +60,28 @@ class ConfigManager:
 
     def is_test_file(self, filename: str) -> bool:
         """Check if file is a test file based on patterns."""
-        test_patterns = self.get_rule('test_files.patterns', [])
-        return any(fnmatch.fnmatch(filename, pattern) for pattern in test_patterns)
+        print(f"Checking if {filename} is a test file")
+
+        # Extract just the filename without path
+        base_filename = Path(filename).name
+
+        test_patterns = self.get_rule('test_files.patterns', [
+            "**/test_*.py",
+            "**/tests/*.py",
+            "conftest.py"  # Changed from **/conftest.py
+        ])
+        print(f"Using patterns: {test_patterns}")
+
+        # Check base filename first
+        if base_filename == "conftest.py":
+            return True
+
+        # Then check full path patterns
+        for pattern in test_patterns:
+            if fnmatch.fnmatch(filename, pattern):
+                print(f"Matched pattern: {pattern}")
+                return True
+        return False
 
     def should_ignore_rule(self, filename: str, rule: str) -> bool:
         """Check if specific rule should be ignored for file."""
