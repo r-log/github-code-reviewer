@@ -46,18 +46,25 @@ class CodeReviewer:
         """Review a single file and return list of comments."""
         comments = []
 
+        print(f"Reviewing file: {file.filename}")  # Debug output
+
         # Get file content
         try:
-            # Try to get content from the repository
-            repo = self.github.get_repo(os.getenv('GITHUB_REPOSITORY'))
-            content = repo.get_contents(
-                file.filename).decoded_content.decode('utf-8').split('\n')
-        except:
-            # Fallback to patch if can't get full content
-            content = file.patch.split('\n') if file.patch else []
+            # Get raw content from the file
+            content = file.raw_content.decode('utf-8').splitlines()
+            print(f"Got raw content: {len(content)} lines")  # Debug output
+        except (AttributeError, UnicodeDecodeError):
+            # Fallback to getting content from patch
+            content = []
+            if file.patch:
+                for line in file.patch.split('\n'):
+                    if line.startswith('+') and not line.startswith('+++'):
+                        content.append(line[1:])
+            print(f"Using patch content: {len(content)} lines")  # Debug output
 
-        print(f"Reviewing file: {file.filename}")  # Debug output
-        print(f"Content: {content[:5]}")  # Show first 5 lines
+        # Show sample of content for debugging
+        if content:
+            print(f"First few lines: {content[:3]}")
 
         # Apply rules
         comments.extend(self._check_line_length(content, file))
@@ -119,51 +126,40 @@ class CodeReviewer:
     def _check_naming_conventions(self, content: list, file) -> list:
         """Check if names follow the configured conventions."""
         comments = []
+
         # Special names to ignore
         ignore_names = {'__name__', '__main__', '__init__', '__file__'}
 
-        patterns = {
-            'class': r'class\s+(\w+)',
-            'function': r'def\s+(\w+)',
-            'variable': r'(?:^|[\s=])(\w+)\s*='
-        }
-
-        conventions = self.config.get_rule('naming_conventions', {})
-
         for line_num, line in enumerate(content, 1):
             stripped_line = line.strip()
-            indent = len(line) - len(line.lstrip())
 
-            # Check for class names (PascalCase)
-            if 'class' in line and conventions.get('classes') == 'PascalCase':
-                matches = re.finditer(patterns['class'], line)
-                for match in matches:
-                    class_name = match.group(1)
-                    if not re.match(r'^[A-Z][a-zA-Z0-9]*$', class_name):
+            # Skip comments and empty lines
+            if not stripped_line or stripped_line.startswith('#'):
+                continue
+
+            # Check variable assignments
+            if '=' in stripped_line and not stripped_line.startswith(('def', 'class', '@', '#')):
+                # Get the variable name (before the =)
+                var_name = stripped_line.split('=')[0].strip()
+
+                # Skip if it's not a valid identifier or is in ignore list
+                if not var_name.isidentifier() or var_name in ignore_names:
+                    continue
+
+                # Check if it's intended to be a constant (all uppercase)
+                is_constant = var_name.isupper()
+
+                if is_constant:
+                    # Constants should be in UPPER_CASE
+                    if not re.match(r'^[A-Z][A-Z0-9_]*$', var_name):
                         comments.append({
                             'path': file.filename,
                             'line': line_num,
-                            'body': f'Class name "{class_name}" should be in PascalCase'
+                            'body': f'Constant "{var_name}" should be in UPPER_CASE'
                         })
-
-            # Check function names (snake_case)
-            if 'def' in line and conventions.get('functions') == 'snake_case':
-                matches = re.finditer(patterns['function'], line)
-                for match in matches:
-                    func_name = match.group(1)
-                    if not re.match(r'^[a-z][a-z0-9_]*$', func_name):
-                        comments.append({
-                            'path': file.filename,
-                            'line': line_num,
-                            'body': f'Function name "{func_name}" should be in snake_case'
-                        })
-
-            # Check variable names (snake_case)
-            if '=' in line and conventions.get('variables') == 'snake_case':
-                matches = re.finditer(patterns['variable'], line)
-                for match in matches:
-                    var_name = match.group(1)
-                    if var_name not in ignore_names and not re.match(r'^[a-z][a-z0-9_]*$', var_name):
+                else:
+                    # Variables should be in snake_case
+                    if not re.match(r'^[a-z][a-z0-9_]*$', var_name):
                         comments.append({
                             'path': file.filename,
                             'line': line_num,
