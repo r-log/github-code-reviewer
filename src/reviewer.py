@@ -1846,6 +1846,7 @@ class CodeReviewer:
         if not self.config.get_rule('functions.warn_unused', True):
             return comments
 
+        seen_warnings = set()  # Track warnings to avoid duplicates
         function_defs = {}
         function_calls = set()
         in_test_file = 'test' in file.filename.lower()
@@ -1869,12 +1870,14 @@ class CodeReviewer:
 
         # Check for unused functions
         for func, line_num in function_defs.items():
-            if func not in function_calls and not func.startswith('_'):
+            warning = f'Unused function: "{func}"'
+            if func not in function_calls and not func.startswith('_') and warning not in seen_warnings:
                 comments.append({
                     'path': file.filename,
                     'line': line_num,
-                    'body': f'Unused function: "{func}"'
+                    'body': warning
                 })
+                seen_warnings.add(warning)
 
         return comments
 
