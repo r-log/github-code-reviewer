@@ -124,8 +124,13 @@ class CodeReviewer:
         return comments
 
     def _check_naming_conventions(self, content: list, file) -> list:
-        """Check if names follow the configured conventions."""
+        """Check naming conventions."""
+        if self.config.should_ignore_file(file.filename):
+            return []
+
         comments = []
+        conventions = self.config.get_rule('naming_conventions', {})
+        ignore_type_hints = conventions.get('type_hints') == 'ignore'
 
         # Special names to ignore
         ignore_names = {'__name__', '__main__', '__init__', '__file__'}
@@ -533,8 +538,11 @@ class CodeReviewer:
     def _check_duplicates(self, content: list, file) -> list:
         """Check for duplicate code blocks."""
         comments = []
-        min_block_size = 4  # Minimum lines to consider as a block
-        similarity_threshold = 0.85  # Minimum similarity to flag as duplicate
+        min_lines = self.config.get_rule('duplication.min_lines', 6)
+        threshold = self.config.get_rule(
+            'duplication.similarity_threshold', 0.85)
+        ignore_docs = self.config.get_rule(
+            'duplication.ignore_docstrings', True)
 
         def normalize_line(line: str) -> str:
             """Normalize line for comparison by removing whitespace and variable names."""
@@ -558,7 +566,7 @@ class CodeReviewer:
         ]
 
         # Check for duplicate blocks
-        for size in range(min_block_size, len(meaningful_lines) // 2 + 1):
+        for size in range(min_lines, len(meaningful_lines) // 2 + 1):
             for i in range(len(meaningful_lines) - size * 2 + 1):
                 block1 = [line for _, line in meaningful_lines[i:i + size]]
 
@@ -567,7 +575,7 @@ class CodeReviewer:
                     block2 = [line for _, line in meaningful_lines[j:j + size]]
 
                     similarity = calculate_similarity(block1, block2)
-                    if similarity >= similarity_threshold:
+                    if similarity >= threshold:
                         comments.append({
                             'path': file.filename,
                             'line': meaningful_lines[i][0],
@@ -584,7 +592,11 @@ class CodeReviewer:
         return comments
 
     def _check_magic_numbers(self, content: list, file) -> list:
-        """Check for magic numbers in code."""
+        """Check for magic numbers."""
+        if (self.config.should_ignore_file(file.filename) and
+                self.config.get_rule('magic_numbers.ignore_in_tests', True)):
+            return []
+
         comments = []
 
         # Numbers that are usually acceptable

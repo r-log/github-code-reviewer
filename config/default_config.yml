@@ -3,10 +3,10 @@ rules:
   max_line_length: 100
   max_file_lines: 300
   require_type_hints: true
-  spacing:
-    around_operators: true
-    after_comma: true
-    around_assignments: true
+  ignore_patterns:
+    - "**/test_*.py"
+    - "**/conftest.py"
+    - "**/tests/*.py"
 
   # Documentation
   required_docstrings: true
@@ -28,8 +28,9 @@ rules:
   # Magic Numbers
   magic_numbers:
     enabled: true
-    ignore_values: [0, 1, -1]
+    ignore_values: [0, 1, -1, 100]
     require_constants: true
+    ignore_in_tests: true
 
   # Imports
   imports:
@@ -44,8 +45,17 @@ rules:
     functions: "snake_case"
     variables: "snake_case"
     constants: "UPPER_CASE"
+    type_hints: "ignore"
 
   # Testing
   testing:
     min_assertions: 1
     require_docstrings: true
+    ignore_unused: true
+
+  # Code Duplication
+  duplication:
+    min_lines: 6
+    similarity_threshold: 0.85
+    ignore_docstrings: true
+    ignore_comments: true

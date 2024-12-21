@@ -1,6 +1,7 @@
 import yaml
 from pathlib import Path
 from typing import Dict, Any
+import fnmatch
 
 
 class ConfigManager:
@@ -38,18 +39,21 @@ class ConfigManager:
                 base[key] = value
 
     def get_rule(self, rule_path: str, default: Any = None) -> Any:
-        """Get rule value from configuration.
+        """Get rule value from config.
 
-        Args:
-            rule_path: Dot-separated path to rule (e.g., 'complexity.max_nested_blocks')
-            default: Default value if rule not found
-
-        Returns:
-            Rule value or default
+        Handles nested rules using dot notation.
         """
+        parts = rule_path.split('.')
         current = self.config['rules']
-        for part in rule_path.split('.'):
-            if not isinstance(current, dict) or part not in current:
+
+        for part in parts:
+            if not isinstance(current, dict):
                 return default
-            current = current[part]
+            current = current.get(part, default)
+
         return current
+
+    def should_ignore_file(self, filename: str) -> bool:
+        """Check if file should be ignored based on patterns."""
+        patterns = self.get_rule('ignore_patterns', [])
+        return any(fnmatch.fnmatch(filename, pattern) for pattern in patterns)
