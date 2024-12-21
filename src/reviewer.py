@@ -93,6 +93,9 @@ class CodeReviewer:
         comments.extend(self._check_api_documentation(content, file))
         comments.extend(self._check_spacing(content, file))
         comments.extend(self._check_unused_code(content, file))
+        comments.extend(self._check_test_quality(content, file))
+        comments.extend(self._check_performance_metrics(content, file))
+        comments.extend(self._check_security_issues(content, file))
 
         return comments
 
@@ -1889,6 +1892,50 @@ class CodeReviewer:
                     'body': warning
                 })
                 seen_warnings.add(warning)
+
+        return comments
+
+    def _check_test_quality(self, content: list, file) -> list:
+        """Check test file quality metrics."""
+        if not self.config.is_test_file(file.filename):
+            return []
+
+        comments = []
+        min_coverage = self.config.get_rule('test_files.min_test_coverage', 80)
+        require_mocks = self.config.get_rule('test_files.require_mocks', False)
+
+        # Check test coverage
+        # Add implementation
+
+        # Check mock usage
+        # Add implementation
+
+        return comments
+
+    def _check_performance_metrics(self, content: list, file) -> list:
+        """Check performance-related metrics."""
+        comments = []
+        max_loop_depth = self.config.get_rule('performance.max_loop_depth', 2)
+        max_calls = self.config.get_rule('performance.max_function_calls', 3)
+
+        # Check loop depth
+        # Add implementation
+
+        # Check function calls
+        # Add implementation
+
+        return comments
+
+    def _check_security_issues(self, content: list, file) -> list:
+        """Check for security issues."""
+        comments = []
+        security_rules = self.config.get_rule('security', {})
+
+        # Check SQL injection
+        # Add implementation
+
+        # Check file access
+        # Add implementation
 
         return comments
 

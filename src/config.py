@@ -57,3 +57,15 @@ class ConfigManager:
         """Check if file should be ignored based on patterns."""
         patterns = self.get_rule('ignore_patterns', [])
         return any(fnmatch.fnmatch(filename, pattern) for pattern in patterns)
+
+    def is_test_file(self, filename: str) -> bool:
+        """Check if file is a test file based on patterns."""
+        test_patterns = self.get_rule('test_files.patterns', [])
+        return any(fnmatch.fnmatch(filename, pattern) for pattern in test_patterns)
+
+    def should_ignore_rule(self, filename: str, rule: str) -> bool:
+        """Check if specific rule should be ignored for file."""
+        if self.is_test_file(filename):
+            ignored_rules = self.get_rule('test_files.ignore_rules', [])
+            return rule in ignored_rules
+        return False

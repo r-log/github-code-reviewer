@@ -59,3 +59,45 @@ rules:
     similarity_threshold: 0.85
     ignore_docstrings: true
     ignore_comments: true
+
+  # Test File Rules
+  test_files:
+    patterns:
+      - "**/test_*.py"
+      - "**/tests/*.py"
+      - "**/conftest.py"
+    ignore_rules:
+      - unused_code
+      - magic_numbers
+      - docstring_length
+    min_test_coverage: 80
+    require_assertions: true
+    require_mocks: false
+    max_test_size: 500
+
+  # Performance Rules
+  performance:
+    max_loop_depth: 2
+    max_function_calls: 3
+    prefer_list_comprehension: true
+    warn_inefficient_operations: true
+    cache_expensive_calls: true
+
+  # Security Rules
+  security:
+    check_sql_injection: true
+    check_xss: true
+    check_file_access: true
+    disallow_eval: true
+    require_input_validation: true
+    check_permissions: true
+
+  # Documentation Rules
+  documentation:
+    require_module_docstring: true
+    require_class_docstring: true
+    require_function_docstring: true
+    min_docstring_length: 10
+    check_parameter_docs: true
+    check_return_docs: true
+    check_raises_docs: true
