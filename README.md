@@ -1,68 +1,106 @@
-# GitHub Code Reviewer
+<div align="center">
+  <h1>🤖 GitHub Code Reviewer</h1>
+  
+  <p>An intelligent code review assistant powered by Python</p>
 
-A Python-based tool for automated code review on GitHub repositories.
+  <p>
+    <a href="#features">Features</a> •
+    <a href="#installation">Installation</a> •
+    <a href="#usage">Usage</a> •
+    <a href="#documentation">Docs</a> •
+    <a href="#contributing">Contributing</a>
+  </p>
 
-## Overview
+  <p>
+    <img src="https://img.shields.io/github/license/r-log/github-code-reviewer" alt="License">
+    <img src="https://img.shields.io/github/stars/r-log/github-code-reviewer" alt="Stars">
+    <img src="https://img.shields.io/github/forks/r-log/github-code-reviewer" alt="Forks">
+    <img src="https://img.shields.io/github/issues/r-log/github-code-reviewer" alt="Issues">
+  </p>
+</div>
 
-GitHub Code Reviewer is a tool designed to help automate the code review process on GitHub repositories. It analyzes code changes and provides automated feedback to improve code quality.
+## ✨ Features
 
-## Features
+🔍 **Automated Code Review**
 
-- Automated code review for GitHub repositories
-- Python-based analysis
-- Integration with GitHub Actions
-- Code quality checks and suggestions
+- Smart code analysis
+- Style guide enforcement
+- Best practices checking
 
-## Installation
+🚀 **Easy Integration**
 
-Install the required dependencies
+- GitHub Actions support
+- Simple API
+- Customizable rules
+
+⚡ **Performance**
+
+- Fast analysis
+- Minimal setup
+- Efficient processing
+
+## 🛠️ Installation
+
+# Clone the repository
+
+git clone https://github.com/r-log/github-code-reviewer.git
+
+# Install dependencies
 
 pip install -r requirements.txt
 
-For development, install additional dependencies
+## 📖 Usage
 
-pip install -r requirements-dev.txt
+1. Set up your GitHub token:
 
-## Project Structure
+export GITHUB_TOKEN=your_token_here
 
-github-code-reviewer/
-├── .github/ # GitHub specific configurations
-├── config/ # Configuration files
-├── src/ # Source code
-├── tests/ # Test files
-├── requirements.txt # Production dependencies
-└── setup.py # Package setup file
+2. Run a code review:
 
-## Development
+from github_code_reviewer import Reviewer
 
-This project uses
+reviewer = Reviewer()
+reviewer.review_pr("owner/repository", pr_number=123)
 
-- Python type hints (checked with mypy)
-- Pre-commit hooks for code quality
-- Unit tests
+## 📚 Documentation
 
-### Setting up the development environment
+Explore our comprehensive documentation:
 
-Install development dependencies
+- 📝 [Getting Started Guide](docs/guides/getting-started.md)
+- ⚙️ [Configuration Guide](docs/guides/configuration.md)
+- 🔧 [API Reference](docs/api/README.md)
+- 🤝 [Contributing Guidelines](docs/contributing/CONTRIBUTING.md)
 
-pip install -r requirements-dev.txt
+## 🤝 Contributing
 
-Install pre-commit hooks
-
-pre-commit install
-
-## Contributing
+We welcome contributions! Here's how you can help:
 
 1. Fork the repository
 2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-## License
+See our [Contributing Guide](docs/contributing/CONTRIBUTING.md) for more details.
 
-[Add your chosen license here]
+## 📜 License
 
-## Contact
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-[Add contact information if desired]
+## 💬 Support
+
+Need help? Here's how to get support:
+
+- 📋 [Open an Issue](https://github.com/r-log/github-code-reviewer/issues)
+- 💡 [Feature Requests](https://github.com/r-log/github-code-reviewer/issues/new?template=feature_request.md)
+- 🐛 [Bug Reports](https://github.com/r-log/github-code-reviewer/issues/new?template=bug_report.md)
+
+## ⭐ Show your support
+
+Give a ⭐️ if this project helped you!
+
+---
+
+<div align="center">
+  Made with ❤️ by <a href="https://github.com/r-log">r-log</a>
+</div>

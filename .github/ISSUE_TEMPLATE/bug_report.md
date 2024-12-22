@@ -1,35 +1,32 @@
 ---
-name: Bug Report
+name: Bug report
 about: Create a report to help us improve
 title: "[BUG] "
-labels: bug
+labels: "bug"
 assignees: ""
 ---
 
-## Bug Description
+**Describe the bug**
+A clear and concise description of what the bug is.
 
-<!-- A clear and concise description of the bug -->
+**To Reproduce**
+Steps to reproduce the behavior:
 
-## Steps to Reproduce
+1. Go to '...'
+2. Run command '....'
+3. See error
 
-1.
-2.
-3.
+**Expected behavior**
+A clear and concise description of what you expected to happen.
 
-## Expected Behavior
+**Screenshots**
+If applicable, add screenshots to help explain your problem.
 
-<!-- What you expected to happen -->
+**Environment (please complete the following information):**
 
-## Actual Behavior
+- OS: [e.g. Ubuntu 20.04]
+- Python version: [e.g. 3.8]
+- Package version: [e.g. 1.0.0]
 
-<!-- What actually happened -->
-
-## Environment
-
-- Python version:
-- Operating System:
-- Project version/commit:
-
-## Additional Context
-
-<!-- Add any other context about the problem here -->
+**Additional context**
+Add any other context about the problem here.
