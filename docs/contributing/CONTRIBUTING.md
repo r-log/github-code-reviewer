@@ -37,4 +37,4 @@ We use GitHub issues to track public bugs. Report a bug by opening a new issue.
 
 ## License
 
-By contributing, you agree that your contributions will be licensed under its MIT License.
+By contributing to GitHub Code Reviewer, you agree that your contributions will be licensed under the Apache License, Version 2.0. See the [LICENSE](../../LICENSE) file for details.

@@ -203,6 +203,7 @@ max_commits=10
 - 📖 [Getting Started Guide](../guides/getting-started.md)
 - ⚙️ [Configuration Guide](../guides/configuration.md)
 - 🤝 [Contributing](../contributing/CONTRIBUTING.md)
+- 🐛 [License](../../LICENSE) (Apache 2.0)
 - 🐛 [Issue Tracker](https://github.com/r-log/github-code-reviewer/issues)
 
 ---

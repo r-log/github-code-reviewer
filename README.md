@@ -12,7 +12,7 @@
   </p>
 
   <p>
-    <img src="https://img.shields.io/github/license/r-log/github-code-reviewer" alt="License">
+    <img src="https://img.shields.io/badge/license-Apache%202.0-blue.svg" alt="License">
     <img src="https://img.shields.io/github/stars/r-log/github-code-reviewer" alt="Stars">
     <img src="https://img.shields.io/github/forks/r-log/github-code-reviewer" alt="Forks">
     <img src="https://img.shields.io/github/issues/r-log/github-code-reviewer" alt="Issues">
