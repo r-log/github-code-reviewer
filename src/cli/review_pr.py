@@ -3,10 +3,11 @@
 
 import os
 import sys
+import asyncio
 from src.ai.reviewer import Reviewer
 
 
-def main():
+async def main():
     """Main entry point."""
     if len(sys.argv) != 3:
         print("Usage: review_pr.py <repository> <pr_number>")
@@ -23,8 +24,8 @@ def main():
 
     # Initialize reviewer with API key
     reviewer = Reviewer(api_key=ai_token)
-    reviewer.review_pr(repository, pr_number)
+    await reviewer.review_pr(repository, pr_number)
 
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())

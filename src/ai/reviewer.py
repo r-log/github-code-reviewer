@@ -311,7 +311,7 @@ class Reviewer:
             review_type
         )
 
-    def review_pr(self, repository: str, pr_number: int) -> None:
+    async def review_pr(self, repository: str, pr_number: int) -> None:
         """Review a pull request."""
         # Import here to avoid circular imports
         from .github.github_provider import GitHubAPIProvider
@@ -340,7 +340,7 @@ class Reviewer:
 
         # Review the pull request
         print(f"🔍 Reviewing PR #{pr_number} in {repository}...")
-        reviews = gh_reviewer.review_pull_request(
+        reviews = await gh_reviewer.review_pull_request(
             repository,
             pr_number,
             review_type=ReviewType.FULL,
@@ -349,7 +349,7 @@ class Reviewer:
 
         # Submit the review
         print("📝 Submitting review comments...")
-        gh_reviewer.submit_review(
+        await gh_reviewer.submit_review(
             repository,
             pr_number,
             reviews,

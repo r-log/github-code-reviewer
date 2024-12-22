@@ -21,7 +21,7 @@ class GitHubReviewer:
         self.reviewer = reviewer
         self.default_review_type = default_review_type
 
-    def review_pull_request(
+    async def review_pull_request(
         self,
         repository: str,
         pr_number: int,
@@ -53,7 +53,7 @@ class GitHubReviewer:
 
             # Generate review
             try:
-                review = self.reviewer.generate_review(request)
+                review = await self.reviewer.generate_review(request)
                 reviews[file_path] = review
             except Exception as e:
                 print(f"Failed to review {file_path}: {str(e)}")
@@ -61,7 +61,7 @@ class GitHubReviewer:
 
         return reviews
 
-    def submit_review(
+    async def submit_review(
         self,
         repository: str,
         pr_number: int,
@@ -81,7 +81,7 @@ class GitHubReviewer:
 
         # Submit review to GitHub
         if comments:
-            self.github.submit_review(
+            await self.github.submit_review(
                 repository,
                 pr_number,
                 comments,
