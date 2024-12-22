@@ -1,21 +1,22 @@
-name: Code Review
+name: AI Code Review
 
 on:
   pull_request:
-    types: [opened, synchronize]
-    paths:
-      - "**.py"
+    types: [opened, synchronize, reopened]
+  pull_request_review_comment:
+    types: [created]
 
 jobs:
   review:
     runs-on: ubuntu-latest
     permissions:
-      pull-requests: write
       contents: read
+      pull-requests: write
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Required to get the full history for diffs
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -28,8 +29,38 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run Code Review
+      - name: Load Configuration
+        id: config
+        run: |
+          if [ -f ".github/code-review.yml" ]; then
+            echo "Using repository-specific configuration"
+            cp .github/code-review.yml config/local_config.yml
+          else
+            echo "Using default configuration"
+          fi
+
+      - name: Run AI Code Review
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          AI_TOKEN: ${{ secrets.AI_TOKEN }}
+          AI_PROVIDER: ${{ secrets.AI_PROVIDER || 'anthropic' }}
+          AI_MODEL: ${{ secrets.AI_MODEL || 'claude-3-sonnet-20240229' }}
+          REVIEW_TYPE: ${{ github.event.inputs.review_type || 'full' }}
+          REVIEW_MAX_FILES: ${{ github.event.inputs.max_files || '10' }}
+          GITHUB_AUTO_APPROVE: ${{ github.event.inputs.auto_approve || 'false' }}
         run: |
-          python -c "from src.reviewer import main; main()"
+          python -m src.cli.review_pr \
+            ${{ github.repository }} \
+            ${{ github.event.pull_request.number }} \
+            --ai-provider $AI_PROVIDER \
+            --review-type $REVIEW_TYPE \
+            --max-files $REVIEW_MAX_FILES
+
+      - name: Handle Review Comment Response
+        if: github.event_name == 'pull_request_review_comment'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          AI_TOKEN: ${{ secrets.AI_TOKEN }}
+        run: |
+          # Future enhancement: Add interactive comment handling
+          echo "Processing review comment response..."
