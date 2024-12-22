@@ -1,39 +1,54 @@
-# Getting Started with GitHub Code Reviewer
+<div align="center">
+  <h1>🚀 Getting Started with GitHub Code Reviewer</h1>
+  
+  <p>Your guide to automated code reviews with GitHub Code Reviewer</p>
 
-This guide will help you set up and start using GitHub Code Reviewer for automated code reviews.
+  <p>
+    <a href="#prerequisites">Prerequisites</a> •
+    <a href="#installation">Installation</a> •
+    <a href="#configuration">Configuration</a> •
+    <a href="#usage">Usage</a> •
+    <a href="#development">Development</a>
+  </p>
+</div>
 
-## Prerequisites
+## 📋 Prerequisites
 
-Before you begin, ensure you have:
+Before diving in, make sure you have:
 
-- Python 3.8 or higher installed
-- A GitHub account
-- A GitHub Personal Access Token with appropriate permissions
-  - `repo` access for private repositories
-  - `public_repo` access for public repositories
+✅ Python 3.8 or higher installed
+✅ A GitHub account
+✅ A GitHub Personal Access Token with:
 
-## Installation
+- `repo` access for private repositories
+- `public_repo` access for public repositories
 
-1. Clone the repository:
+## 🛠️ Installation
+
+### 1️⃣ Clone the Repository
 
 git clone https://github.com/r-log/github-code-reviewer.git
 cd github-code-reviewer
 
-2. Install required dependencies:
+### 2️⃣ Install Dependencies
+
+# For basic usage
 
 pip install -r requirements.txt
 
-3. For development purposes, install additional dependencies:
+# For development
 
 pip install -r requirements-dev.txt
 
-## Configuration
+## ⚙️ Configuration
 
-1. Set up your GitHub token:
+### 1️⃣ Set Up GitHub Token
 
 export GITHUB_TOKEN=your_token_here
 
-2. Configure the reviewer settings in `config/code-reviewer.yaml`:
+### 2️⃣ Configure Review Settings
+
+Create or modify `config/code-reviewer.yaml`:
 
 github:
 token: ${GITHUB_TOKEN}
@@ -44,16 +59,16 @@ max_files: 50
 file_extensions: - ".py" - ".js" - ".ts"
 ignore_patterns: - "tests/" - "docs/"
 
-## Basic Usage
+## 🚀 Basic Usage
 
-1. Run a code review on a pull request:
+### 1️⃣ Run Code Review
 
 from github_code_reviewer import Reviewer
 
 reviewer = Reviewer()
 reviewer.review_pr("owner/repository", pr_number=123)
 
-2. Set up automated reviews using GitHub Actions:
+### 2️⃣ GitHub Actions Integration
 
 name: Code Review
 
@@ -75,40 +90,51 @@ GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 run: |
 python -m github_code_reviewer review
 
-## Development Setup
+## 🔧 Development Setup
 
-1. Install pre-commit hooks:
+### 1️⃣ Install Pre-commit Hooks
 
 pre-commit install
 
-2. Run tests:
+### 2️⃣ Run Tests
 
 pytest tests/
 
-## Common Issues and Solutions
+## ❗ Common Issues and Solutions
 
-### Authentication Issues
+### 🔑 Authentication Issues
 
-- Ensure your GitHub token has the correct permissions
-- Verify the token is properly set in your environment
+- Verify token permissions
+- Check token environment variable
+- Ensure token is valid and not expired
 
-### Rate Limiting
+### ⚡ Rate Limiting
 
-- The GitHub API has rate limits
-- Use token authentication to get higher rate limits
-- Consider implementing caching for frequent operations
+- Use authenticated requests
+- Implement request caching
+- Monitor API usage limits
 
-## Next Steps
+## 📚 Next Steps
 
-- Read the Configuration Guide for detailed settings
-- Check out Usage Examples for more scenarios
-- Review the API Documentation for advanced usage
-- Learn how to Contribute to the project
+Explore more about GitHub Code Reviewer:
 
-## Support
+📖 [Configuration Guide](configuration.md)
+🎯 [Usage Examples](../examples/basic-usage.md)
+📘 [API Documentation](../api/README.md)
+🤝 [Contributing Guide](../contributing/CONTRIBUTING.md)
 
-If you encounter any issues:
+## 🆘 Support
 
-1. Check the Issues page
-2. Review existing discussions
-3. Open a new issue with detailed information about your problem
+Need help? We've got you covered:
+
+1. 📋 Browse our [Issues](https://github.com/r-log/github-code-reviewer/issues)
+2. 💬 Join existing discussions
+3. 🔍 Search for similar problems
+4. ❓ Open a new issue with details about your problem
+
+---
+
+<div align="center">
+  <p>Happy Coding! 🎉</p>
+  <p>Made with ❤️ by r-log</p>
+</div>
