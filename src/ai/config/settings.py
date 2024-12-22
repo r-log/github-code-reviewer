@@ -1,29 +1,9 @@
 from typing import Optional, List, Dict, Any
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
 import os
 import yaml
 
-
-@dataclass
-class RuleConfig:
-    """Code review rules configuration."""
-    max_line_length: int = 100
-    max_file_lines: int = 300
-    require_type_hints: bool = True
-    ignore_patterns: List[str] = None
-    required_docstrings: bool = True
-    min_docstring_words: int = 5
-    complexity: Dict[str, Any] = None
-    functions: Dict[str, Any] = None
-    magic_numbers: Dict[str, Any] = None
-    imports: Dict[str, Any] = None
-    naming_conventions: Dict[str, Any] = None
-    testing: Dict[str, Any] = None
-    duplication: Dict[str, Any] = None
-    test_files: Dict[str, Any] = None
-    performance: Dict[str, Any] = None
-    security: Dict[str, Any] = None
-    documentation: Dict[str, Any] = None
+from .validator import ConfigValidator
 
 
 @dataclass
@@ -55,11 +35,7 @@ class ReviewConfig:
     min_severity: str = "suggestion"
     focus_areas: Optional[List[str]] = None
     ignore_patterns: Optional[List[str]] = None
-    rules: RuleConfig = None
-
-    def __post_init__(self):
-        if self.rules is None:
-            self.rules = RuleConfig()
+    rules: Dict[str, Any] = None
 
 
 @dataclass
@@ -72,96 +48,88 @@ class Config:
     @classmethod
     def from_file(cls, path: str = "config/default_config.yml") -> 'Config':
         """Load configuration from a YAML file."""
+        validator = ConfigValidator()
+
         if not os.path.exists(path):
-            return cls.default()
+            # Generate example config if file doesn't exist
+            config_data = validator.generate_example_config()
+        else:
+            with open(path, 'r') as f:
+                config_data = yaml.safe_load(f)
 
-        with open(path, 'r') as f:
-            data = yaml.safe_load(f)
-
-        # Convert the existing rules format to our config structure
-        rules_data = data.get('rules', {})
-        review_data = {
-            'type': 'full',
-            'max_comments': 50,
-            'min_severity': 'suggestion',
-            'rules': rules_data
-        }
+        # Validate and apply defaults
+        validated_config = validator.validate_with_defaults(config_data)
 
         return cls(
-            ai=AIConfig(),  # Default AI config
-            github=GitHubConfig(),  # Default GitHub config
-            review=ReviewConfig(**review_data)
+            ai=AIConfig(**validated_config.get('ai', {})),
+            github=GitHubConfig(**validated_config.get('github', {})),
+            review=ReviewConfig(**validated_config.get('review', {}))
         )
 
     @classmethod
     def from_env(cls) -> 'Config':
         """Load configuration from environment variables."""
+        config = {
+            'ai': {
+                'provider': os.getenv('AI_PROVIDER', 'anthropic'),
+                'model': os.getenv('AI_MODEL', 'claude-3-sonnet-20240229'),
+                'temperature': float(os.getenv('AI_TEMPERATURE', '0.7')),
+                'max_tokens': int(os.getenv('AI_MAX_TOKENS')) if os.getenv('AI_MAX_TOKENS') else None
+            },
+            'github': {
+                'token': os.getenv('GITHUB_TOKEN'),
+                'auto_approve': os.getenv('GITHUB_AUTO_APPROVE', '').lower() == 'true',
+                'comment_on_approval': os.getenv('GITHUB_COMMENT_ON_APPROVAL', '').lower() == 'true',
+                'request_changes_on_errors': os.getenv('GITHUB_REQUEST_CHANGES_ON_ERRORS', '').lower() == 'true',
+                'ignore_files': os.getenv('GITHUB_IGNORE_FILES', '').split(',') if os.getenv('GITHUB_IGNORE_FILES') else None,
+                'ignore_paths': os.getenv('GITHUB_IGNORE_PATHS', '').split(',') if os.getenv('GITHUB_IGNORE_PATHS') else None
+            },
+            'review': {
+                'type': os.getenv('REVIEW_TYPE', 'full'),
+                'max_files': int(os.getenv('REVIEW_MAX_FILES')) if os.getenv('REVIEW_MAX_FILES') else None,
+                'max_comments': int(os.getenv('REVIEW_MAX_COMMENTS', '50')),
+                'min_severity': os.getenv('REVIEW_MIN_SEVERITY', 'suggestion'),
+                'focus_areas': os.getenv('REVIEW_FOCUS_AREAS', '').split(',') if os.getenv('REVIEW_FOCUS_AREAS') else None,
+                'ignore_patterns': os.getenv('REVIEW_IGNORE_PATTERNS', '').split(',') if os.getenv('REVIEW_IGNORE_PATTERNS') else None
+            }
+        }
+
+        # Validate configuration
+        validator = ConfigValidator()
+        validated_config = validator.validate_with_defaults(config)
+
         return cls(
-            ai=AIConfig(
-                provider=os.getenv('AI_PROVIDER', 'anthropic'),
-                model=os.getenv('AI_MODEL', 'claude-3-sonnet-20240229'),
-                temperature=float(os.getenv('AI_TEMPERATURE', '0.7')),
-                max_tokens=int(os.getenv('AI_MAX_TOKENS')) if os.getenv(
-                    'AI_MAX_TOKENS') else None
-            ),
-            github=GitHubConfig(
-                token=os.getenv('GITHUB_TOKEN'),
-                auto_approve=os.getenv(
-                    'GITHUB_AUTO_APPROVE', '').lower() == 'true',
-                comment_on_approval=os.getenv(
-                    'GITHUB_COMMENT_ON_APPROVAL', '').lower() == 'true',
-                request_changes_on_errors=os.getenv(
-                    'GITHUB_REQUEST_CHANGES_ON_ERRORS', '').lower() == 'true',
-                ignore_files=os.getenv('GITHUB_IGNORE_FILES', '').split(
-                    ',') if os.getenv('GITHUB_IGNORE_FILES') else None,
-                ignore_paths=os.getenv('GITHUB_IGNORE_PATHS', '').split(
-                    ',') if os.getenv('GITHUB_IGNORE_PATHS') else None
-            ),
-            review=ReviewConfig(
-                type=os.getenv('REVIEW_TYPE', 'full'),
-                max_files=int(os.getenv('REVIEW_MAX_FILES')) if os.getenv(
-                    'REVIEW_MAX_FILES') else None,
-                max_comments=int(os.getenv('REVIEW_MAX_COMMENTS', '50')),
-                min_severity=os.getenv('REVIEW_MIN_SEVERITY', 'suggestion'),
-                focus_areas=os.getenv('REVIEW_FOCUS_AREAS', '').split(
-                    ',') if os.getenv('REVIEW_FOCUS_AREAS') else None,
-                ignore_patterns=os.getenv('REVIEW_IGNORE_PATTERNS', '').split(
-                    ',') if os.getenv('REVIEW_IGNORE_PATTERNS') else None
-            )
+            ai=AIConfig(**validated_config['ai']),
+            github=GitHubConfig(**validated_config['github']),
+            review=ReviewConfig(**validated_config['review'])
         )
 
     @classmethod
     def default(cls) -> 'Config':
         """Create default configuration."""
+        validator = ConfigValidator()
+        config_data = validator.generate_example_config()
         return cls(
-            ai=AIConfig(),
-            github=GitHubConfig(),
-            review=ReviewConfig()
+            ai=AIConfig(**config_data['ai']),
+            github=GitHubConfig(**config_data['github']),
+            review=ReviewConfig(**config_data['review'])
         )
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert configuration to dictionary."""
         return {
-            'ai': {
-                'provider': self.ai.provider,
-                'model': self.ai.model,
-                'temperature': self.ai.temperature,
-                'max_tokens': self.ai.max_tokens
-            },
-            'github': {
-                'auto_approve': self.github.auto_approve,
-                'comment_on_approval': self.github.comment_on_approval,
-                'request_changes_on_errors': self.github.request_changes_on_errors,
-                'ignore_files': self.github.ignore_files,
-                'ignore_paths': self.github.ignore_paths
-            },
-            'review': {
-                'type': self.review.type,
-                'max_files': self.review.max_files,
-                'max_comments': self.review.max_comments,
-                'min_severity': self.review.min_severity,
-                'focus_areas': self.review.focus_areas,
-                'ignore_patterns': self.review.ignore_patterns,
-                'rules': self.review.rules.__dict__ if self.review.rules else None
-            }
+            'ai': asdict(self.ai),
+            'github': asdict(self.github),
+            'review': asdict(self.review)
         }
+
+    def save(self, path: str) -> None:
+        """Save configuration to a file."""
+        config_data = self.to_dict()
+
+        # Validate before saving
+        validator = ConfigValidator()
+        validator.validate(config_data)
+
+        with open(path, 'w') as f:
+            yaml.safe_dump(config_data, f, default_flow_style=False)

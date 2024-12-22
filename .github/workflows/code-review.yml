@@ -3,8 +3,6 @@ name: AI Code Review
 on:
   pull_request:
     types: [opened, synchronize, reopened]
-  pull_request_review_comment:
-    types: [created]
 
 jobs:
   review:
@@ -16,12 +14,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Required to get the full history for diffs
+          fetch-depth: 0
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
-          python-version: "3.10"
+          python-version: "3.11"
           cache: "pip"
 
       - name: Install dependencies
@@ -29,38 +27,26 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Load Configuration
-        id: config
-        run: |
-          if [ -f ".github/code-review.yml" ]; then
-            echo "Using repository-specific configuration"
-            cp .github/code-review.yml config/local_config.yml
-          else
-            echo "Using default configuration"
-          fi
-
       - name: Run AI Code Review
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          AI_TOKEN: ${{ secrets.AI_TOKEN }}
-          AI_PROVIDER: ${{ secrets.AI_PROVIDER || 'anthropic' }}
-          AI_MODEL: ${{ secrets.AI_MODEL || 'claude-3-sonnet-20240229' }}
-          REVIEW_TYPE: ${{ github.event.inputs.review_type || 'full' }}
-          REVIEW_MAX_FILES: ${{ github.event.inputs.max_files || '10' }}
-          GITHUB_AUTO_APPROVE: ${{ github.event.inputs.auto_approve || 'false' }}
+          AI_PROVIDER: ${{ secrets.AI_PROVIDER }}
+          AI_MODEL: ${{ secrets.AI_MODEL }}
+          AI_TEMPERATURE: ${{ secrets.AI_TEMPERATURE }}
+          AI_MAX_TOKENS: ${{ secrets.AI_MAX_TOKENS }}
+          REVIEW_TYPE: ${{ secrets.REVIEW_TYPE }}
+          REVIEW_MAX_FILES: ${{ secrets.REVIEW_MAX_FILES }}
+          REVIEW_MAX_COMMENTS: ${{ secrets.REVIEW_MAX_COMMENTS }}
+          REVIEW_MIN_SEVERITY: ${{ secrets.REVIEW_MIN_SEVERITY }}
+          REVIEW_FOCUS_AREAS: ${{ secrets.REVIEW_FOCUS_AREAS }}
+          REVIEW_IGNORE_PATTERNS: ${{ secrets.REVIEW_IGNORE_PATTERNS }}
+          GITHUB_AUTO_APPROVE: ${{ secrets.GITHUB_AUTO_APPROVE }}
+          GITHUB_COMMENT_ON_APPROVAL: ${{ secrets.GITHUB_COMMENT_ON_APPROVAL }}
+          GITHUB_REQUEST_CHANGES_ON_ERRORS: ${{ secrets.GITHUB_REQUEST_CHANGES_ON_ERRORS }}
+          GITHUB_IGNORE_FILES: ${{ secrets.GITHUB_IGNORE_FILES }}
+          GITHUB_IGNORE_PATHS: ${{ secrets.GITHUB_IGNORE_PATHS }}
         run: |
-          python -m src.cli.review_pr \
-            ${{ github.repository }} \
-            ${{ github.event.pull_request.number }} \
-            --ai-provider $AI_PROVIDER \
-            --review-type $REVIEW_TYPE \
-            --max-files $REVIEW_MAX_FILES
-
-      - name: Handle Review Comment Response
-        if: github.event_name == 'pull_request_review_comment'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          AI_TOKEN: ${{ secrets.AI_TOKEN }}
-        run: |
-          # Future enhancement: Add interactive comment handling
-          echo "Processing review comment response..."
+          python -m src.main review \
+            --pr ${{ github.event.pull_request.number }} \
+            --repo ${{ github.repository }} \
+            --config config/default_config.yml

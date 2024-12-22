@@ -1,0 +1,281 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["ai", "github", "review"],
+  "properties": {
+    "ai": {
+      "type": "object",
+      "required": ["provider", "model", "temperature"],
+      "properties": {
+        "provider": {
+          "type": "string",
+          "enum": ["anthropic", "openai"],
+          "default": "anthropic"
+        },
+        "model": {
+          "type": "string",
+          "default": "claude-3-sonnet-20240229"
+        },
+        "temperature": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "default": 0.7
+        },
+        "max_tokens": {
+          "type": ["integer", "null"],
+          "minimum": 1,
+          "default": null
+        }
+      }
+    },
+    "github": {
+      "type": "object",
+      "properties": {
+        "token": {
+          "type": ["string", "null"],
+          "default": null
+        },
+        "auto_approve": {
+          "type": "boolean",
+          "default": false
+        },
+        "comment_on_approval": {
+          "type": "boolean",
+          "default": true
+        },
+        "request_changes_on_errors": {
+          "type": "boolean",
+          "default": true
+        },
+        "ignore_files": {
+          "type": ["array", "null"],
+          "items": {
+            "type": "string"
+          },
+          "default": null
+        },
+        "ignore_paths": {
+          "type": ["array", "null"],
+          "items": {
+            "type": "string"
+          },
+          "default": null
+        }
+      }
+    },
+    "review": {
+      "type": "object",
+      "required": ["type", "min_severity"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["full", "quick", "security", "performance"],
+          "default": "full"
+        },
+        "max_files": {
+          "type": ["integer", "null"],
+          "minimum": 1,
+          "default": null
+        },
+        "max_comments": {
+          "type": ["integer", "null"],
+          "minimum": 1,
+          "default": 50
+        },
+        "min_severity": {
+          "type": "string",
+          "enum": ["error", "warning", "suggestion", "style"],
+          "default": "suggestion"
+        },
+        "focus_areas": {
+          "type": ["array", "null"],
+          "items": {
+            "type": "string"
+          },
+          "default": null
+        },
+        "ignore_patterns": {
+          "type": ["array", "null"],
+          "items": {
+            "type": "string"
+          },
+          "default": null
+        },
+        "rules": {
+          "type": ["object", "null"],
+          "properties": {
+            "max_line_length": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 100
+            },
+            "max_file_lines": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 300
+            },
+            "require_type_hints": {
+              "type": "boolean",
+              "default": true
+            },
+            "required_docstrings": {
+              "type": "boolean",
+              "default": true
+            },
+            "min_docstring_words": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 5
+            },
+            "complexity": {
+              "type": ["object", "null"],
+              "properties": {
+                "max_cognitive_complexity": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "default": 15
+                },
+                "max_cyclomatic_complexity": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "default": 10
+                }
+              }
+            },
+            "functions": {
+              "type": ["object", "null"],
+              "properties": {
+                "max_parameters": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "default": 5
+                },
+                "max_returns": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "default": 3
+                },
+                "max_local_variables": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "default": 10
+                }
+              }
+            },
+            "imports": {
+              "type": ["object", "null"],
+              "properties": {
+                "banned_modules": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "default": []
+                },
+                "required_imports": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "default": []
+                }
+              }
+            },
+            "naming_conventions": {
+              "type": ["object", "null"],
+              "properties": {
+                "class_style": {
+                  "type": "string",
+                  "enum": ["PascalCase", "snake_case"],
+                  "default": "PascalCase"
+                },
+                "function_style": {
+                  "type": "string",
+                  "enum": ["snake_case", "camelCase"],
+                  "default": "snake_case"
+                },
+                "variable_style": {
+                  "type": "string",
+                  "enum": ["snake_case", "camelCase"],
+                  "default": "snake_case"
+                },
+                "constant_style": {
+                  "type": "string",
+                  "enum": ["SCREAMING_SNAKE_CASE", "UPPER_CASE"],
+                  "default": "SCREAMING_SNAKE_CASE"
+                }
+              }
+            },
+            "testing": {
+              "type": ["object", "null"],
+              "properties": {
+                "require_tests": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "min_test_coverage": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 100,
+                  "default": 80
+                },
+                "test_naming_pattern": {
+                  "type": "string",
+                  "default": "test_*"
+                }
+              }
+            },
+            "duplication": {
+              "type": ["object", "null"],
+              "properties": {
+                "max_similar_lines": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "default": 6
+                },
+                "min_tokens": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "default": 50
+                }
+              }
+            },
+            "performance": {
+              "type": ["object", "null"],
+              "properties": {
+                "max_memory_mb": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "default": 512
+                },
+                "max_cpu_time_ms": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "default": 1000
+                }
+              }
+            },
+            "security": {
+              "type": ["object", "null"],
+              "properties": {
+                "check_sql_injection": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "check_xss": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "check_csrf": {
+                  "type": "boolean",
+                  "default": true
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

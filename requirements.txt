@@ -2,5 +2,11 @@ PyGithub>=2.1.1
 PyYAML>=6.0.1
 anthropic
 aiosqlite>=0.19.0
+jsonschema>=4.21.1
+pytest>=7.4.0
+pytest-asyncio>=0.21.1
+pytest-cov>=4.1.0
+requests>=2.31.0
+typing-extensions>=4.7.1
 
 
