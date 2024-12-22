@@ -46,7 +46,4 @@ jobs:
           GITHUB_IGNORE_FILES: ${{ secrets.GITHUB_IGNORE_FILES }}
           GITHUB_IGNORE_PATHS: ${{ secrets.GITHUB_IGNORE_PATHS }}
         run: |
-          python -m src.main review \
-            --pr ${{ github.event.pull_request.number }} \
-            --repo ${{ github.repository }} \
-            --config config/default_config.yml
+          PYTHONPATH=. python src/cli/review_pr.py ${{ github.repository }} ${{ github.event.pull_request.number }}

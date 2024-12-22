@@ -1966,3 +1966,15 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+def process_review_data(data, threshold):
+    """process review data"""
+    results = []
+    for i in data:
+        # No type hints
+        # Magic numbers
+        if i > threshold:
+            val = i * 1.5
+            results.append(val)
+    return results
