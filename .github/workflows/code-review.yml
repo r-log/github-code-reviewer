@@ -30,20 +30,8 @@ jobs:
       - name: Run AI Code Review
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          AI_PROVIDER: ${{ secrets.AI_PROVIDER }}
-          AI_MODEL: ${{ secrets.AI_MODEL }}
-          AI_TEMPERATURE: ${{ secrets.AI_TEMPERATURE }}
-          AI_MAX_TOKENS: ${{ secrets.AI_MAX_TOKENS }}
-          REVIEW_TYPE: ${{ secrets.REVIEW_TYPE }}
-          REVIEW_MAX_FILES: ${{ secrets.REVIEW_MAX_FILES }}
-          REVIEW_MAX_COMMENTS: ${{ secrets.REVIEW_MAX_COMMENTS }}
-          REVIEW_MIN_SEVERITY: ${{ secrets.REVIEW_MIN_SEVERITY }}
-          REVIEW_FOCUS_AREAS: ${{ secrets.REVIEW_FOCUS_AREAS }}
-          REVIEW_IGNORE_PATTERNS: ${{ secrets.REVIEW_IGNORE_PATTERNS }}
-          GITHUB_AUTO_APPROVE: ${{ secrets.GITHUB_AUTO_APPROVE }}
-          GITHUB_COMMENT_ON_APPROVAL: ${{ secrets.GITHUB_COMMENT_ON_APPROVAL }}
-          GITHUB_REQUEST_CHANGES_ON_ERRORS: ${{ secrets.GITHUB_REQUEST_CHANGES_ON_ERRORS }}
-          GITHUB_IGNORE_FILES: ${{ secrets.GITHUB_IGNORE_FILES }}
-          GITHUB_IGNORE_PATHS: ${{ secrets.GITHUB_IGNORE_PATHS }}
+          AI_TOKEN: ${{ secrets.ANTHROPIC_API_KEY }}
+          AI_PROVIDER: "anthropic"
+          AI_MODEL: "claude-3-sonnet-20240229"
         run: |
           PYTHONPATH=. python src/cli/review_pr.py ${{ github.repository }} ${{ github.event.pull_request.number }}

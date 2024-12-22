@@ -3,6 +3,7 @@ from pathlib import Path
 import asyncio
 import logging
 from datetime import datetime
+import os
 
 from .models.request import AIRequest, CodeContext, ReviewSettings, ReviewType
 from .models.response import AIResponse, ReviewComment
@@ -11,6 +12,8 @@ from .storage.sqlite import SQLiteStorage
 from .storage.base import ReviewRecord
 from .exceptions import ReviewError, ConfigurationError, StorageError
 from .reporting.base import ReportGenerator, ReviewReport
+from .github.github_provider import GitHubAPIProvider
+from .github.reviewer import GitHubReviewer
 
 logger = logging.getLogger(__name__)
 
@@ -317,3 +320,46 @@ class Reviewer:
             end_time,
             review_type
         )
+
+    def review_pr(self, repository: str, pr_number: int) -> None:
+        """Review a pull request."""
+        # Get GitHub token
+        github_token = os.getenv("GITHUB_TOKEN")
+        if not github_token:
+            raise ValueError("GITHUB_TOKEN environment variable not set")
+
+        # Initialize GitHub components
+        github = GitHubAPIProvider(github_token)
+        gh_reviewer = GitHubReviewer(
+            github_provider=github,
+            reviewer=self.provider,
+            default_review_type=ReviewType.FULL
+        )
+
+        # Set review settings
+        settings = ReviewSettings(
+            max_comments=50,
+            min_severity="suggestion",
+            focus_areas=None,
+            ignore_patterns=None
+        )
+
+        # Review the pull request
+        print(f"🔍 Reviewing PR #{pr_number} in {repository}...")
+        reviews = gh_reviewer.review_pull_request(
+            repository,
+            pr_number,
+            review_type=ReviewType.FULL,
+            settings=settings
+        )
+
+        # Submit the review
+        print("📝 Submitting review comments...")
+        gh_reviewer.submit_review(
+            repository,
+            pr_number,
+            reviews,
+            ReviewType.FULL
+        )
+
+        print("✅ Review completed successfully!")
