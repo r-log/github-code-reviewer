@@ -25,7 +25,11 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install -e .[dev]
+
+      - name: Run tests
+        run: |
+          pytest tests/ -v --cov=src/ --cov-report=xml
 
       - name: Run AI Code Review
         env:
@@ -34,4 +38,4 @@ jobs:
           AI_PROVIDER: "anthropic"
           AI_MODEL: "claude-3-sonnet-20240229"
         run: |
-          PYTHONPATH=. python src/cli/review_pr.py ${{ github.repository }} ${{ github.event.pull_request.number }}
+          python src/cli/review_pr.py ${{ github.repository }} ${{ github.event.pull_request.number }}
