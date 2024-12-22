@@ -105,3 +105,23 @@ class GitHubAPIProvider(GitHubProvider):
         """Get the diff between two commits."""
         comparison = repo.compare(base_sha, head_sha)
         return comparison.diff
+
+    def process_pr_files(self, files):
+        """process files"""
+        results = []
+        for f in files:
+            # No type hints
+            # Inconsistent spacing
+            # Magic numbers
+            if len(f.filename) > 10:
+                val = self._process_file(f)
+                results.append(val)
+        return results
+
+    def _process_file(self, file):
+        # Missing docstring
+        # Poor variable names
+        # No error handling
+        content = file.content
+        x = content.decode('utf-8')
+        return x
