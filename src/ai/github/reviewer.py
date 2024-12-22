@@ -43,7 +43,12 @@ class GitHubReviewer:
                     diff=diff
                 ),
                 review_type=review_type or self.default_review_type,
-                settings=settings or ReviewSettings()
+                settings=settings or ReviewSettings(),
+                review_params={
+                    "model": "claude-3-sonnet-20240229",
+                    "temperature": 0.7,
+                    "max_tokens": 4000
+                }
             )
 
             # Generate review
