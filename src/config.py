@@ -1,13 +1,13 @@
 import yaml
 from pathlib import Path
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 import fnmatch
 
 
 class ConfigManager:
     """Manage configuration for the code reviewer."""
 
-    def __init__(self, custom_config_path: str = None):
+    def __init__(self, custom_config_path: Optional[str] = None) -> None:
         """Initialize configuration manager.
 
         Args:
