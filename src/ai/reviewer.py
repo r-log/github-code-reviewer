@@ -65,28 +65,18 @@ class Reviewer:
     def __init__(
         self,
         provider_name: str = "anthropic",
-        api_key: str = None,
-        default_review_type: ReviewType = ReviewType.FULL,
-        storage_path: Optional[str] = "reviews.db",
-        report_generator: Optional[ReportGenerator] = None,
+        api_key: Optional[str] = None,
         **provider_kwargs
     ):
         """Initialize the reviewer with a specific provider."""
         if not api_key:
-            raise ConfigurationError("API key is required")
+            raise ValueError("API key is required")
 
         self.provider = ProviderFactory.create(
-            provider_name, api_key, **provider_kwargs
+            provider_name=provider_name,
+            api_key=api_key,
+            **provider_kwargs
         )
-        self.default_review_type = default_review_type
-        self.default_settings = ReviewSettings()
-        self.storage = SQLiteStorage(storage_path) if storage_path else None
-
-        # Initialize report generator
-        if report_generator is None:
-            from .reporting.markdown import MarkdownReportGenerator
-            report_generator = MarkdownReportGenerator()
-        self.report_generator = report_generator
 
     async def review_file(
         self,

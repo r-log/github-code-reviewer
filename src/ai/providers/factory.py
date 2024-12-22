@@ -12,15 +12,21 @@ class ProviderFactory:
     }
 
     @classmethod
-    def create(cls, provider_name: str, **kwargs) -> AIProvider:
-        """Create an AI provider instance."""
+    def create(cls, provider_name: str, api_key: str, **kwargs) -> AIProvider:
+        """Create an AI provider instance.
+
+        Args:
+            provider_name: Name of the provider to create
+            api_key: API key for the provider
+            **kwargs: Additional provider-specific arguments
+        """
         if provider_name not in cls._providers:
             raise ValueError(
                 f"Unknown provider: {provider_name}. "
                 f"Available providers: {', '.join(cls._providers.keys())}"
             )
 
-        return cls._providers[provider_name](**kwargs)
+        return cls._providers[provider_name](api_key=api_key, **kwargs)
 
     @classmethod
     def get_available_providers(cls) -> list:
