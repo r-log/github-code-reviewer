@@ -1,36 +1,34 @@
 from typing import Dict, Type
 
-from .base import BaseProvider
+from .base import AIProvider
 from .anthropic import AnthropicProvider
-from .openai_provider import OpenAIProvider
-from ..exceptions import ProviderError
 
 
 class ProviderFactory:
-    """Factory for creating AI provider instances."""
+    """Factory for creating AI providers."""
 
-    _providers: Dict[str, Type[BaseProvider]] = {
-        "anthropic": AnthropicProvider,
-        "openai": OpenAIProvider,
+    _providers: Dict[str, Type[AIProvider]] = {
+        'anthropic': AnthropicProvider,
     }
 
     @classmethod
-    def create(cls, provider_name: str, api_key: str, **kwargs) -> BaseProvider:
-        """Create a provider instance."""
-        provider_class = cls._providers.get(provider_name.lower())
-        if not provider_class:
-            raise ProviderError(
-                f"Unknown provider: {provider_name}. Available providers: {', '.join(cls._providers.keys())}"
+    def create(cls, provider_name: str, api_key: str, **kwargs) -> AIProvider:
+        """Create an AI provider instance.
+
+        Args:
+            provider_name: Name of the provider to create
+            api_key: API key for the provider
+            **kwargs: Additional provider-specific arguments
+        """
+        if provider_name not in cls._providers:
+            raise ValueError(
+                f"Unknown provider: {provider_name}. "
+                f"Available providers: {', '.join(cls._providers.keys())}"
             )
 
-        return provider_class(api_key, **kwargs)
+        return cls._providers[provider_name](api_key=api_key, **kwargs)
 
     @classmethod
-    def register_provider(cls, name: str, provider_class: Type[BaseProvider]):
-        """Register a new provider."""
-        cls._providers[name.lower()] = provider_class
-
-    @classmethod
-    def get_available_providers(cls) -> list[str]:
+    def get_available_providers(cls) -> list:
         """Get list of available provider names."""
         return list(cls._providers.keys())

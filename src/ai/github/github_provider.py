@@ -1,9 +1,10 @@
-from typing import List
+from typing import Dict, List, Optional, Tuple
 import base64
 from datetime import datetime
 
 from github.PullRequest import PullRequest
 from github.Repository import Repository
+from github import GithubException
 
 from .base import GitHubProvider, PullRequestInfo, ReviewComment
 
@@ -105,3 +106,90 @@ class GitHubAPIProvider(GitHubProvider):
         """Get the diff between two commits."""
         comparison = repo.compare(base_sha, head_sha)
         return comparison.diff
+
+    def process_pr_files(self, files):
+        """process files"""
+        results = []
+        for f in files:
+            # No type hints
+            # Inconsistent spacing
+            # Magic numbers
+            if len(f.filename) > 10:
+                val = self._process_file(f)
+                results.append(val)
+        return results
+
+    def _process_file(self, file):
+        # Missing docstring
+        # Poor variable names
+        # No error handling
+        content = file.content
+        x = content.decode('utf-8')
+        return x
+
+    def get_pr_changes(self, repository: str, pr_number: int) -> Dict[str, Tuple[str, Optional[str]]]:
+        """Get changes from a pull request.
+
+        Args:
+            repository: Repository name (e.g., 'owner/repo')
+            pr_number: Pull request number
+
+        Returns:
+            Dict mapping file paths to tuples of (content, diff)
+        """
+        try:
+            # Get repository and pull request
+            repo = self.client.get_repo(repository)
+            pr = repo.get_pull(pr_number)
+
+            # Get changed files
+            changes = {}
+            for file in pr.get_files():
+                try:
+                    # Get file content from the PR head
+                    content = repo.get_contents(
+                        file.filename,
+                        ref=pr.head.sha
+                    ).decoded_content.decode('utf-8')
+
+                    # Add to changes dict
+                    changes[file.filename] = (content, file.patch)
+                except Exception as e:
+                    print(
+                        f"Failed to get content for {file.filename}: {str(e)}")
+                    continue
+
+            return changes
+
+        except GithubException as e:
+            raise ValueError(f"Failed to get PR changes: {str(e)}")
+
+    def submit_review(
+        self,
+        repository: str,
+        pr_number: int,
+        comments: List[dict],
+        event: str = "COMMENT"
+    ) -> None:
+        """Submit a review to a pull request.
+
+        Args:
+            repository: Repository name (e.g., 'owner/repo')
+            pr_number: Pull request number
+            comments: List of comment dictionaries with 'path', 'line', and 'body'
+            event: Review event type ('COMMENT', 'REQUEST_CHANGES', or 'APPROVE')
+        """
+        try:
+            # Get repository and pull request
+            repo = self.client.get_repo(repository)
+            pr = repo.get_pull(pr_number)
+
+            # Create review
+            pr.create_review(
+                body="AI Code Review",
+                event=event,
+                comments=comments
+            )
+
+        except GithubException as e:
+            raise ValueError(f"Failed to submit review: {str(e)}")
