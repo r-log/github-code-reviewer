@@ -323,6 +323,10 @@ class Reviewer:
 
     def review_pr(self, repository: str, pr_number: int) -> None:
         """Review a pull request."""
+        # Import here to avoid circular imports
+        from .github.github_provider import GitHubAPIProvider
+        from .github.reviewer import GitHubReviewer
+
         # Get GitHub token
         github_token = os.getenv("GITHUB_TOKEN")
         if not github_token:
